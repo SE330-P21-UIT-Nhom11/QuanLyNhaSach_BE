@@ -1,5 +1,6 @@
 package com.example.quanlynhasach.service.impl;
 
+import com.example.quanlynhasach.dto.AuthorDTO;
 import com.example.quanlynhasach.dto.CategoryDTO;
 import com.example.quanlynhasach.dto.ProductDTO;
 import com.example.quanlynhasach.dto.PublisherDTO;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -47,7 +49,7 @@ public class ProductServiceImpl implements ProductService {
             if (product.getDiscount() != null) {
                 existingProduct.setDiscount(product.getDiscount());
             }
-            if (product.getStock() >= 0) {
+            if (product.getStock() != null) {
                 existingProduct.setStock(product.getStock());
             }
             if (product.getDescription() != null) {
@@ -104,6 +106,20 @@ public class ProductServiceImpl implements ProductService {
         } else {
             dto.setPublisherId(null);
             dto.setPublisher(null);
+        }
+        if (product.getAuthors() != null && !product.getAuthors().isEmpty()) {
+            List<AuthorDTO> authorDTOs = product.getAuthors().stream()
+                    .map(author -> new AuthorDTO(author.getId(), author.getName(), author.getBio()))
+                    .collect(Collectors.toList());
+
+            dto.setAuthors(authorDTOs);
+            List<Integer> authorIds = authorDTOs.stream()
+                    .map(AuthorDTO::getId)
+                    .collect(Collectors.toList());
+            dto.setAuthorIds(authorIds);
+        } else {
+            dto.setAuthors(null);
+            dto.setAuthorIds(null);
         }
 
         return dto;

@@ -17,6 +17,9 @@ public class User {
     private String address;
     private String role;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Cart cart;
+
     public User() {
     }
 
@@ -83,5 +86,13 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public Cart getCart() {
+        return cart;
+    }
+
+    public void setCart(Cart cart) {
+        this.cart = cart;
     }
 }

@@ -1,5 +1,6 @@
 package com.example.quanlynhasach.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.Objects;
@@ -7,10 +8,12 @@ import java.util.Objects;
 @Embeddable
 public class OrderDetailId implements Serializable {
 
+    @Column(name = "order_id")
     private int orderId;
+
+    @Column(name = "product_id")
     private int productId;
 
-    // Constructors
     public OrderDetailId() {
     }
 
@@ -35,7 +38,6 @@ public class OrderDetailId implements Serializable {
         this.productId = productId;
     }
 
-    // Equals & HashCode
     @Override
     public boolean equals(Object obj) {
         if (this == obj)

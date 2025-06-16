@@ -2,6 +2,7 @@ package com.example.quanlynhasach.model;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "product")
@@ -23,7 +24,7 @@ public class Product {
     private BigDecimal discount;
 
     @Column(nullable = false)
-    private int stock;
+    private Integer stock;
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -38,11 +39,15 @@ public class Product {
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     private Category category;
 
+    @ManyToMany
+    @JoinTable(name = "compose", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "author_id"))
+    private List<Author> authors;
+
     public Product() {
     }
 
     public Product(String title, String slug, BigDecimal price, BigDecimal discount, Integer stock, String description,
-            String coverImage, Publisher publisher, Category category) {
+            String coverImage, Publisher publisher, Category category, List<Author> authors) {
         this.title = title;
         this.slug = slug;
         this.price = price;
@@ -52,6 +57,7 @@ public class Product {
         this.coverImage = coverImage;
         this.publisher = publisher;
         this.category = category;
+        this.authors = authors;
     }
 
     public int getId() {
@@ -94,11 +100,11 @@ public class Product {
         this.discount = discount;
     }
 
-    public int getStock() {
+    public Integer getStock() {
         return stock;
     }
 
-    public void setStock(int stock) {
+    public void setStock(Integer stock) {
         this.stock = stock;
     }
 
@@ -132,5 +138,13 @@ public class Product {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    public List<Author> getAuthors() {
+        return authors;
+    }
+
+    public void setAuthors(List<Author> authors) {
+        this.authors = authors;
     }
 }

@@ -1,15 +1,13 @@
 package com.example.quanlynhasach.controller;
 
-import com.example.quanlynhasach.model.Product;
 import com.example.quanlynhasach.dto.ProductDTO;
-import com.example.quanlynhasach.model.Category;
-import com.example.quanlynhasach.model.Publisher;
+import com.example.quanlynhasach.model.*;
 import com.example.quanlynhasach.service.*;
-import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/products")
@@ -18,12 +16,14 @@ public class ProductController {
     private final ProductService productService;
     private final CategoryService categoryService;
     private final PublisherService publisherService;
+    private final AuthorService authorService;
 
     public ProductController(ProductService productService, CategoryService categoryService,
-            PublisherService publisherService) {
+            PublisherService publisherService, AuthorService authorService) {
         this.productService = productService;
         this.categoryService = categoryService;
         this.publisherService = publisherService;
+        this.authorService = authorService;
     }
 
     // Lấy tất cả product
@@ -60,13 +60,22 @@ public class ProductController {
 
     // Tạo product mới
     @PostMapping
-    public ResponseEntity<Product> createProduct(@RequestBody ProductDTO dto) {
+    public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO dto) {
         try {
             if (dto.getCategoryId() <= 0 || dto.getPublisherId() <= 0) {
                 return ResponseEntity.badRequest().body(null);
             }
             Category category = categoryService.getCategoryById(dto.getCategoryId());
             Publisher publisher = publisherService.getPublisherById(dto.getPublisherId());
+            List<Author> authors = new ArrayList<>();
+            if (dto.getAuthorIds() != null) {
+                for (Integer authorId : dto.getAuthorIds()) {
+                    Author author = authorService.getAuthorById(authorId);
+                    if (author != null) {
+                        authors.add(author);
+                    }
+                }
+            }
             Product product = new Product(
                     dto.getTitle(),
                     dto.getSlug(),
@@ -76,9 +85,11 @@ public class ProductController {
                     dto.getDescription(),
                     dto.getCoverImage(),
                     publisher,
-                    category);
+                    category,
+                    authors);
             Product created = productService.createProduct(product);
-            return ResponseEntity.status(201).body(created);
+            ProductDTO productdto = productService.convertToDTO(created);
+            return ResponseEntity.status(201).body(productdto);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().build();
@@ -87,15 +98,57 @@ public class ProductController {
 
     // Cập nhật product
     @PatchMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable int id, @RequestBody Product product) {
+    public ResponseEntity<ProductDTO> updateProduct(@PathVariable int id, @RequestBody ProductDTO dto) {
         try {
-            Product updatedProduct = productService.updateProduct(id, product);
-            if (updatedProduct != null) {
-                return ResponseEntity.ok(updatedProduct);
-            } else {
+            Product existingProduct = productService.getProductById(id);
+            if (existingProduct == null) {
                 return ResponseEntity.notFound().build();
             }
+
+            if (dto.getTitle() != null)
+                existingProduct.setTitle(dto.getTitle());
+            if (dto.getSlug() != null)
+                existingProduct.setSlug(dto.getSlug());
+            if (dto.getPrice() != null)
+                existingProduct.setPrice(dto.getPrice());
+            if (dto.getDiscount() != null)
+                existingProduct.setDiscount(dto.getDiscount());
+            if (dto.getStock() != null)
+                existingProduct.setStock(dto.getStock());
+            if (dto.getDescription() != null)
+                existingProduct.setDescription(dto.getDescription());
+            if (dto.getCoverImage() != null)
+                existingProduct.setCoverImage(dto.getCoverImage());
+
+            if (dto.getCategoryId() != null) {
+                Category category = categoryService.getCategoryById(dto.getCategoryId());
+                if (category != null) {
+                    existingProduct.setCategory(category);
+                }
+            }
+
+            if (dto.getPublisherId() != null) {
+                Publisher publisher = publisherService.getPublisherById(dto.getPublisherId());
+                if (publisher != null) {
+                    existingProduct.setPublisher(publisher);
+                }
+            }
+
+            if (dto.getAuthorIds() != null) {
+                List<Author> authors = new ArrayList<>();
+                for (Integer authorId : dto.getAuthorIds()) {
+                    Author author = authorService.getAuthorById(authorId);
+                    if (author != null) {
+                        authors.add(author);
+                    }
+                }
+                existingProduct.setAuthors(authors);
+            }
+
+            Product updatedProduct = productService.updateProduct(id, existingProduct);
+            return ResponseEntity.ok(productService.convertToDTO(updatedProduct));
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
     }

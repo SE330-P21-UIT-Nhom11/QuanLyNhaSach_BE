@@ -8,7 +8,6 @@ public class ComposeId implements Serializable {
     private int productId;
     private int authorId;
 
-    // Constructors
     public ComposeId() {
     }
 
@@ -17,7 +16,22 @@ public class ComposeId implements Serializable {
         this.authorId = authorId;
     }
 
-    // equals & hashCode
+    public int getProductId() {
+        return productId;
+    }
+
+    public void setProductId(int productId) {
+        this.productId = productId;
+    }
+
+    public int getAuthorId() {
+        return authorId;
+    }
+
+    public void setAuthorId(int authorId) {
+        this.authorId = authorId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -25,8 +39,7 @@ public class ComposeId implements Serializable {
         if (!(o instanceof ComposeId))
             return false;
         ComposeId that = (ComposeId) o;
-        return Objects.equals(productId, that.productId) &&
-                Objects.equals(authorId, that.authorId);
+        return productId == that.productId && authorId == that.authorId;
     }
 
     @Override
