@@ -1,13 +1,18 @@
 package com.example.quanlynhasach.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+
 import java.io.Serializable;
 import java.util.Objects;
 
 @Embeddable
 public class CartItemKey implements Serializable {
 
+    @Column(name = "cart_id")
     private int cartId;
+
+    @Column(name = "product_id")
     private int productId;
 
     public CartItemKey() {
@@ -17,8 +22,6 @@ public class CartItemKey implements Serializable {
         this.cartId = cartId;
         this.productId = productId;
     }
-
-    // Getters, Setters, equals() and hashCode()
 
     public int getCartId() {
         return cartId;
@@ -43,8 +46,8 @@ public class CartItemKey implements Serializable {
         if (!(o instanceof CartItemKey))
             return false;
         CartItemKey that = (CartItemKey) o;
-        return Objects.equals(cartId, that.cartId) &&
-                Objects.equals(productId, that.productId);
+        return cartId == that.cartId &&
+                productId == that.productId;
     }
 
     @Override

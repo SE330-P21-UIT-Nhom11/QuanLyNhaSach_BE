@@ -1,5 +1,6 @@
 package com.example.quanlynhasach.controller;
 
+import com.example.quanlynhasach.dto.AuthorDTO;
 import com.example.quanlynhasach.model.Author;
 import com.example.quanlynhasach.service.AuthorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/authors")
@@ -17,10 +19,14 @@ public class AuthorController {
 
     // Lấy tất cả author
     @GetMapping
-    public ResponseEntity<List<Author>> getAllAuthors() {
+    public ResponseEntity<List<AuthorDTO>> getAllAuthors() {
         try {
-            List<Author> authors = authorService.getAllAuthors();
-            return ResponseEntity.ok(authors);
+            List<AuthorDTO> authorDTOs = authorService.getAllAuthors()
+                    .stream()
+                    .map(authorService::convertToDTO)
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(authorDTOs);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
@@ -28,17 +34,13 @@ public class AuthorController {
 
     // Lấy author theo id
     @GetMapping("/{id}")
-    public ResponseEntity<Author> getAuthorById(@PathVariable int id) {
-        try {
-            Author author = authorService.getAuthorById(id);
-            if (author != null) {
-                return ResponseEntity.ok(author);
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
+    public ResponseEntity<AuthorDTO> getAuthorById(@PathVariable int id) {
+        Author author = authorService.getAuthorById(id);
+        if (author == null)
+            return ResponseEntity.notFound().build();
+
+        AuthorDTO dto = authorService.convertToDTO(author);
+        return ResponseEntity.ok(dto);
     }
 
     // Tạo author mới

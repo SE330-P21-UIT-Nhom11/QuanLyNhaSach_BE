@@ -1,5 +1,7 @@
 package com.example.quanlynhasach.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -11,12 +13,13 @@ public class CartItem {
 
     @ManyToOne
     @MapsId("cartId")
-    @JoinColumn(name = "cart_id")
+    @JoinColumn(name = "cart_id", nullable = false)
+    @JsonIgnore
     private Cart cart;
 
     @ManyToOne
     @MapsId("productId")
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
     @Column(nullable = false)
@@ -29,15 +32,8 @@ public class CartItem {
         this.cart = cart;
         this.product = product;
         this.quantity = quantity;
-
-        if (cart.getId() == 0 || product.getId() == 0) {
-            throw new IllegalArgumentException("Cart or Product ID is null");
-        }
-
         this.id = new CartItemKey(cart.getId(), product.getId());
     }
-
-    // Getters and Setters
 
     public CartItemKey getId() {
         return id;
@@ -53,21 +49,23 @@ public class CartItem {
 
     public void setCart(Cart cart) {
         this.cart = cart;
+        this.id.setCartId(cart.getId());
     }
 
-    public Product getBook() {
+    public Product getProduct() {
         return product;
     }
 
-    public void setBook(Product product) {
+    public void setProduct(Product product) {
         this.product = product;
+        this.id.setProductId(product.getId());
     }
 
-    public Integer getQuantity() {
+    public int getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(Integer quantity) {
+    public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
 }

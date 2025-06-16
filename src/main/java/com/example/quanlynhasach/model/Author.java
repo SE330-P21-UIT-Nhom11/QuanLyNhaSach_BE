@@ -1,10 +1,14 @@
 package com.example.quanlynhasach.model;
 
 import jakarta.persistence.*;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "author")
 public class Author {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -12,8 +16,21 @@ public class Author {
     private String name;
 
     @Lob
-    @Column(columnDefinition = "MEDIUMTEXT")
+    @Column(columnDefinition = "TEXT")
     private String bio;
+
+    @ManyToMany(mappedBy = "authors")
+    @JsonIgnore
+    private List<Product> products;
+
+    public Author() {
+    }
+
+    public Author(String name, String bio, List<Product> products) {
+        this.name = name;
+        this.bio = bio;
+        this.products = products;
+    }
 
     public int getId() {
         return id;
@@ -37,5 +54,13 @@ public class Author {
 
     public void setBio(String bio) {
         this.bio = bio;
+    }
+
+    public List<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<Product> products) {
+        this.products = products;
     }
 }

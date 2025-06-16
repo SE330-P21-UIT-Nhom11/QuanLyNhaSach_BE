@@ -1,16 +1,18 @@
 package com.example.quanlynhasach.service;
 
+import com.example.quanlynhasach.dto.CartDTO;
+import com.example.quanlynhasach.dto.CartItemDTO;
 import com.example.quanlynhasach.model.Cart;
 import com.example.quanlynhasach.model.CartItem;
-import com.example.quanlynhasach.model.Product;
 import com.example.quanlynhasach.model.User;
 
 import java.util.List;
 
 public interface CartService {
+
     Cart createCart(User user);
 
-    List<Cart> getCartsByUser(User user);
+    Cart getCartByUserId(int userId);
 
     Cart getCartById(int id);
 
@@ -18,9 +20,13 @@ public interface CartService {
 
     List<CartItem> getCartItems(int cartId);
 
-    void addItemToCart(User user, Product product, int quantity);
+    void addItemToCart(int userId, int productId, int quantity);
 
-    void removeItemFromCart(User user, int productId);
+    void removeItemFromCart(int userId, int productId);
 
-    void clearCart(User user);
+    void clearCart(int userId);
+
+    CartDTO convertToDTO(Cart cart);
+
+    List<CartItemDTO> convertCartItemDTOList(List<CartItem> cartItems);
 }

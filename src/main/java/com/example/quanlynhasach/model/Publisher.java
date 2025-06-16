@@ -16,7 +16,6 @@ public class Publisher {
     private String address;
     private String contact;
 
-    // Constructors
     public Publisher() {
     }
 
@@ -26,7 +25,6 @@ public class Publisher {
         this.contact = contact;
     }
 
-    // Getters and Setters
     public int getId() {
         return id;
     }

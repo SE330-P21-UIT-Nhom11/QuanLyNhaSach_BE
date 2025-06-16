@@ -1,6 +1,7 @@
 package com.example.quanlynhasach.dto;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class ProductDTO {
     private int id;
@@ -8,14 +9,16 @@ public class ProductDTO {
     private String slug;
     private BigDecimal price;
     private BigDecimal discount;
-    private int stock;
+    private Integer stock;
     private String description;
     private String coverImage;
     private Integer publisherId;
     private Integer categoryId;
+    private List<Integer> authorIds;
 
     private CategoryDTO category;
     private PublisherDTO publisher;
+    private List<AuthorDTO> authors;
 
     public ProductDTO() {
     }
@@ -60,11 +63,11 @@ public class ProductDTO {
         this.discount = discount;
     }
 
-    public int getStock() {
+    public Integer getStock() {
         return stock;
     }
 
-    public void setStock(int stock) {
+    public void setStock(Integer stock) {
         this.stock = stock;
     }
 
@@ -84,7 +87,7 @@ public class ProductDTO {
         this.coverImage = coverImage;
     }
 
-    public int getPublisherId() {
+    public Integer getPublisherId() {
         return publisherId;
     }
 
@@ -92,7 +95,7 @@ public class ProductDTO {
         this.publisherId = publisherId;
     }
 
-    public int getCategoryId() {
+    public Integer getCategoryId() {
         return categoryId;
     }
 
@@ -116,4 +119,19 @@ public class ProductDTO {
         this.publisher = publisher;
     }
 
+    public List<AuthorDTO> getAuthors() {
+        return authors;
+    }
+
+    public void setAuthors(List<AuthorDTO> authors) {
+        this.authors = authors;
+    }
+
+    public List<Integer> getAuthorIds() {
+        return authorIds;
+    }
+
+    public void setAuthorIds(List<Integer> authorIds) {
+        this.authorIds = authorIds;
+    }
 }

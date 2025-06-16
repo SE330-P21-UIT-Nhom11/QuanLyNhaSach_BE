@@ -36,7 +36,6 @@ public class OrderDetail {
         this.price = price;
     }
 
-    // Getters and Setters
     public OrderDetailId getId() {
         return id;
     }
@@ -51,6 +50,9 @@ public class OrderDetail {
 
     public void setOrder(Order order) {
         this.order = order;
+        if (this.product != null) {
+            this.id = new OrderDetailId(order.getId(), this.product.getId());
+        }
     }
 
     public Product getProduct() {
@@ -59,6 +61,9 @@ public class OrderDetail {
 
     public void setProduct(Product product) {
         this.product = product;
+        if (this.order != null) {
+            this.id = new OrderDetailId(this.order.getId(), product.getId());
+        }
     }
 
     public int getQuantity() {
