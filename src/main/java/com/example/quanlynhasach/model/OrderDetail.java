@@ -3,6 +3,8 @@ package com.example.quanlynhasach.model;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "orderdetail")
 public class OrderDetail {
@@ -12,6 +14,7 @@ public class OrderDetail {
 
     @ManyToOne
     @MapsId("orderId")
+    @JsonIgnore
     private Order order;
 
     @ManyToOne
@@ -24,7 +27,6 @@ public class OrderDetail {
     @Column(nullable = false)
     private BigDecimal price;
 
-    // Constructors
     public OrderDetail() {
     }
 
