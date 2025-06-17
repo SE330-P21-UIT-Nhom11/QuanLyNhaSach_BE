@@ -1,5 +1,6 @@
 package com.example.quanlynhasach.service;
 
+import com.example.quanlynhasach.dto.OrderDTO;
 import com.example.quanlynhasach.model.Order;
 
 import java.util.List;
@@ -15,4 +16,9 @@ public interface OrderService {
     Order createOrder(Order order);
 
     boolean deleteOrder(int id);
+
+    OrderDTO convertToDTO(Order order);
+
+    Order createOrderFromDTO(OrderDTO dto);
+
 }
