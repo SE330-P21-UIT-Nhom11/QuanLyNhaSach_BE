@@ -103,6 +103,7 @@ public class AuthorizationMiddleware implements Filter {
         }        // Lấy access token từ Bearer header
         String authHeader = httpRequest.getHeader("Authorization");
         String accessToken = null;
+        boolean tokenRefreshed = false;
         
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             accessToken = authHeader.substring(7);
@@ -113,13 +114,18 @@ public class AuthorizationMiddleware implements Filter {
             String refreshToken = CookieUtil.getRefreshTokenFromCookie(httpRequest);
             
             if (refreshToken != null && !jwtUtil.isTokenExpired(refreshToken)) {
-                // Sử dụng refresh token để lấy thông tin user
-                accessToken = refreshToken;
+                // Lấy thông tin từ refresh token để tạo access token mới
+                String email = jwtUtil.extractEmail(refreshToken);
+                String role = jwtUtil.extractRole(refreshToken);
+                
+                // Generate access token mới
+                accessToken = jwtUtil.generateAccessToken(email, role);
+                tokenRefreshed = true;
             } else {
                 sendErrorResponse(httpResponse, 401, "Missing or invalid authorization token");
                 return;
             }
-        }        
+        }
         try {
             // Lấy email từ token
             String email = jwtUtil.extractEmail(accessToken);
@@ -135,18 +141,25 @@ public class AuthorizationMiddleware implements Filter {
                 sendErrorResponse(httpResponse, 403, "Insufficient permissions for this action");
                 return;
             }
-            
-            // Thêm thông tin user vào request để controller sử dụng
+              // Thêm thông tin user vào request để controller sử dụng
             httpRequest.setAttribute("userEmail", email);
             httpRequest.setAttribute("userRole", userRole);
             httpRequest.setAttribute("accessToken", accessToken);
             
+            // Nếu token đã được refresh, thêm access token mới vào response header            
         } catch (Exception e) {
             sendErrorResponse(httpResponse, 401, "Invalid token");
             return;
         }
 
+        // Thực hiện request
         chain.doFilter(request, response);
+          // Nếu đã refresh token, thêm access token mới vào response header
+        if (tokenRefreshed) {
+            httpResponse.setHeader("Authorization", "Bearer " + accessToken);
+            // Cho phép client đọc header Authorization
+            httpResponse.setHeader("Access-Control-Expose-Headers", "Authorization");
+        }
     }
 
     private boolean isPublicEndpoint(String method, String path) {
@@ -162,7 +175,7 @@ public class AuthorizationMiddleware implements Filter {
             String roleString = jwtUtil.extractRole(token);
             return Role.valueOf(roleString.toUpperCase());
         } catch (Exception e) {
-            return Role.USER; // Default role if extraction fails
+            return Role.USER;
         }
     }
 

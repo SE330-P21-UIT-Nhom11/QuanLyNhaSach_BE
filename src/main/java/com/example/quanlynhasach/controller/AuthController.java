@@ -102,76 +102,8 @@ public class AuthController {
             errorResponse.put("error", true);
             errorResponse.put("message", "Login failed: " + e.getMessage());
             return ResponseEntity.status(500).body(errorResponse);
-        }
-    }    @PostMapping("/refresh")
-    @Operation(summary = "Refresh Access Token", description = "Generate new access token using refresh token from cookie")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Token refreshed successfully", 
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
-            @ApiResponse(responseCode = "401", description = "Refresh token not found or expired", 
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
-            @ApiResponse(responseCode = "500", description = "Token refresh failed due to server error", 
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
-    })
-    public ResponseEntity<Map<String, Object>> refreshToken(
-            HttpServletRequest request,
-            HttpServletResponse response) {
-
-        try {
-            String refreshToken = CookieUtil.getRefreshTokenFromCookie(request);
-
-            if (refreshToken == null) {
-                Map<String, Object> errorResponse = new HashMap<>();
-                errorResponse.put("error", true);
-                errorResponse.put("message", "Refresh token not found in cookie");
-                return ResponseEntity.status(401).body(errorResponse);
-            }
-
-            // Verify refresh token
-            if (jwtUtil.isTokenExpired(refreshToken)) {
-                CookieUtil.deleteRefreshTokenCookie(response);
-                Map<String, Object> errorResponse = new HashMap<>();
-                errorResponse.put("error", true);
-                errorResponse.put("message", "Refresh token expired");
-                return ResponseEntity.status(401).body(errorResponse);
-            }
-            // Lấy user từ refresh token
-            String email = jwtUtil.extractEmail(refreshToken);
-            User user = userService.getUserByEmail(email).orElse(null);
-
-            if (user == null) {
-                CookieUtil.deleteRefreshTokenCookie(response);
-                Map<String, Object> errorResponse = new HashMap<>();
-                errorResponse.put("error", true);
-                errorResponse.put("message", "User not found");
-                return ResponseEntity.status(401).body(errorResponse);
-            }
-
-            // Tạo access token mới
-            String newAccessToken = jwtUtil.generateAccessToken(user);
-
-            // Tùy chọn: Tạo refresh token mới
-            String newRefreshToken = jwtUtil.generateRefreshToken(user);
-            CookieUtil.createRefreshTokenCookie(response, newRefreshToken);
-
-            Map<String, Object> refreshResponse = new HashMap<>();
-            refreshResponse.put("success", true);
-            refreshResponse.put("accessToken", newAccessToken);
-            refreshResponse.put("user", Map.of(
-                    "id", user.getId(),
-                    "email", user.getEmail(),
-                    "name", user.getName(),
-                    "role", user.getRole()
-            ));
-
-            return ResponseEntity.ok(refreshResponse);
-
-        } catch (Exception e) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("error", true);
-            errorResponse.put("message", "Token refresh failed: " + e.getMessage());
-            return ResponseEntity.status(500).body(errorResponse);
-        }    }
+        }    }    
+    
     
     @PostMapping("/logout")
     @Operation(summary = "User Logout", description = "Logout user and clear refresh token cookie")

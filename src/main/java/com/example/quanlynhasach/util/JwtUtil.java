@@ -1,20 +1,18 @@
 package com.example.quanlynhasach.util;
 
-import io.jsonwebtoken.Jwts;
+import com.example.quanlynhasach.exception.InvalidTokenException;
+import com.example.quanlynhasach.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import com.example.quanlynhasach.exception.InvalidTokenException;
-
-import java.util.Date;
-import java.security.Key;
-import org.springframework.stereotype.Component;
-import org.springframework.beans.factory.annotation.Value;
-
-import com.example.quanlynhasach.model.User;
-
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.security.Key;
+import java.util.Date;
 
 @Component
 public class JwtUtil {
@@ -44,6 +42,17 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject(user.getEmail())
                 .claim("role", user.getRole())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpirationTime))
+                .signWith(secretKey)
+                .compact();
+    }
+
+    // Overloaded method để generate access token từ email và role
+    public String generateAccessToken(String email, String role) {
+        return Jwts.builder()
+                .setSubject(email)
+                .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpirationTime))
                 .signWith(secretKey)
