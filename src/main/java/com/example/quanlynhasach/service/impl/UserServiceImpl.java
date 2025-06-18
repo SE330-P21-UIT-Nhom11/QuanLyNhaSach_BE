@@ -1,6 +1,7 @@
 package com.example.quanlynhasach.service.impl;
 
 import com.example.quanlynhasach.model.User;
+import com.example.quanlynhasach.model.enums.Role;
 import com.example.quanlynhasach.repository.UserRepository;
 import com.example.quanlynhasach.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<User> getUserById(int id) {
-        return userRepository.findById(id); // Trả về Optional<User>
+        return userRepository.findById(id); 
     }
 
     @Override
@@ -68,5 +69,17 @@ public class UserServiceImpl implements UserService {
             return user;
         }
         return null;
+    }
+
+    @Override
+    public Role getUserRole(String email) {
+        User user = userRepository.findByEmail(email);
+        return user != null ? user.getRole() : Role.USER;
+    }
+
+    @Override
+    public Optional<User> getUserByEmail(String email) {
+        User user = userRepository.findByEmail(email);
+        return Optional.ofNullable(user);
     }
 }
