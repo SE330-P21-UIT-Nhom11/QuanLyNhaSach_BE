@@ -1,0 +1,74 @@
+services:
+  - type: web
+    name: quanlynhasach-api
+    env: docker
+    repo: https://github.com/your-username/QuanLyNhaSach_BE.git
+    dockerfilePath: ./Dockerfile
+    region: singapore
+    plan: free
+    branch: main
+    buildCommand: ""
+    startCommand: ""
+    envVars:
+      - key: APP_NAME
+        value: quanlynhasach
+      - key: SERVER_PORT
+        value: 8080
+      - key: SPRING_PROFILES_ACTIVE
+        value: production
+      - key: DB_URL
+        value: jdbc:mysql://gateway01.us-west-2.prod.aws.tidbcloud.com:4000/QuanLyNhaSach_DB?sslMode=VERIFY_IDENTITY
+      - key: DB_USERNAME
+        value: TGhSTtGU3r6xK2v.root
+      - key: DB_PASSWORD
+        value: ON5gY2jvPrXRtcFt
+      - key: DB_DRIVER
+        value: com.mysql.cj.jdbc.Driver
+      - key: DB_POOL_SIZE
+        value: 10
+      - key: DB_MIN_IDLE
+        value: 5
+      - key: DB_CONNECTION_TIMEOUT
+        value: 20000
+      - key: DB_IDLE_TIMEOUT
+        value: 300000
+      - key: JPA_DDL_AUTO
+        value: validate
+      - key: JPA_SHOW_SQL
+        value: false
+      - key: JPA_FORMAT_SQL
+        value: true
+      - key: JPA_OPEN_IN_VIEW
+        value: false
+      - key: SSL_TRUSTSTORE
+        value: classpath:ssl/truststore.jks
+      - key: SSL_TRUSTSTORE_PASSWORD
+        value: changeit
+      - key: JWT_SECRET
+        value: mySecretKey123456789012345678901234567890
+      - key: JWT_ACCESS_EXPIRATION
+        value: 900000
+      - key: JWT_REFRESH_EXPIRATION
+        value: 2592000000
+      - key: JWT_RESET_EXPIRATION
+        value: 300000
+      - key: MAIL_HOST
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: 587
+      - key: MAIL_USERNAME
+        value: bookmanager.group11@gmail.com
+      - key: MAIL_PASSWORD
+        value: isof gihj oszv rcjo
+      - key: MAIL_FROM
+        value: bookmanager.group11@gmail.com
+      - key: MAIL_FROM_NAME
+        value: BookManager Support
+      - key: MAIL_SMTP_AUTH
+        value: true
+      - key: MAIL_SMTP_STARTTLS
+        value: true
+      - key: MAIL_SMTP_STARTTLS_REQUIRED
+        value: true
+      - key: MAIL_SMTP_SSL_TRUST
+        value: smtp.gmail.com

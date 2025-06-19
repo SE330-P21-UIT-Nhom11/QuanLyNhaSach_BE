@@ -1,0 +1,49 @@
+# Ignore build artifacts
+target/
+!target/*.war
+!target/*.jar
+
+# Ignore IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore local environment files
+.env.local
+.env.development
+.env.test
+
+# Ignore logs
+logs/
+*.log
+
+# Ignore temporary files
+*.tmp
+*.temp
+
+# Ignore Git
+.git/
+.gitignore
+
+# Ignore documentation
+README.md
+REFACTOR_SUMMARY.md
+*.md
+
+# Ignore Maven wrapper files (optional)
+.mvn/
+mvnw
+mvnw.cmd
+
+# Ignore node modules if any
+node_modules/
+
+# Ignore test coverage reports
+coverage/
+test-results/
