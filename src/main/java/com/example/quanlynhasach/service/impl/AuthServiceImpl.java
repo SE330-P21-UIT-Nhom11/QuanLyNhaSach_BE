@@ -4,6 +4,10 @@ import com.example.quanlynhasach.dto.LoginResponse;
 import com.example.quanlynhasach.model.User;
 import com.example.quanlynhasach.repository.UserRepository;
 import com.example.quanlynhasach.service.AuthService;
+import com.example.quanlynhasach.service.TokenService;
+import com.example.quanlynhasach.service.EmailService;
+import com.example.quanlynhasach.dto.TokenResponse;
+import com.example.quanlynhasach.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,34 +20,45 @@ public class AuthServiceImpl implements AuthService {
     
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private TokenService tokenService;
     
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
     
     @Override
     public Object login(String email, String password) {
-        // Validate input
         if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
             throw new IllegalArgumentException("Email and password must not be null or empty");
         }
         
         try {
-            // Find user by email
             User user = userRepository.findByEmail(email);
             if (user == null) {
                 throw new RuntimeException("Invalid email or password");
             }
             
-            // Check password
             if (!passwordEncoder.matches(password, user.getPassword())) {
                 throw new RuntimeException("Invalid email or password");
-            }            // Create and return login response
+            }
+
+            TokenResponse tokenResponse = tokenService.generateAuthTokens(user);
+
             LoginResponse response = new LoginResponse();
             response.setEmail(user.getEmail());
             response.setName(user.getName());
-            response.setRole(user.getRole().toString()); // Convert enum to string
+            response.setRole(user.getRole().toString());
             response.setMessage("Login successful");
-            
+            response.setAccessToken(tokenResponse.getAccessToken());
+            response.setRefreshToken(tokenResponse.getRefreshToken());
+
             return response;
             
         } catch (Exception e) {
@@ -54,13 +69,11 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public boolean logout(String token) {
         try {
-            // Implement logout logic here
-            // For now, just validate the token and return success
             if (token == null || token.trim().isEmpty()) {
                 return false;
             }
             
-
+            tokenService.revokeToken(token);
             return true;
             
         } catch (Exception e) {
@@ -71,25 +84,20 @@ public class AuthServiceImpl implements AuthService {
     
     @Override
     public void forgotPassword(String email) {
-        // Validate input
         if (email == null || email.trim().isEmpty()) {
             throw new IllegalArgumentException("Email must not be null or empty");
         }
         
         try {
-            // Find user by email
             User user = userRepository.findByEmail(email);
             if (user == null) {
                 throw new RuntimeException("No account found with email: " + email);
-            }
-            
-            // TODO: Generate reset token and send email
-            // For now, just log the action
-            System.out.println("Password reset requested for email: " + email);
-            // In a real implementation, you would:
-            // 1. Generate a secure reset token
-            // 2. Store it with expiration time
-            // 3. Send email with reset link
+            }            // Generate reset token (valid for 15 minutes)
+            String resetToken = jwtUtil.generateResetToken(user);
+
+            // Send password reset email with frontend link and token
+            emailService.sendPasswordResetEmail(email, resetToken);
+
             
         } catch (Exception e) {
             throw new RuntimeException("Forgot password failed: " + e.getMessage());

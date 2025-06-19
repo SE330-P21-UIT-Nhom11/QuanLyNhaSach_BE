@@ -30,16 +30,27 @@ public class TokenServiceImpl implements TokenService {
         token.setExpirationTime(java.time.LocalDateTime.now().plusDays(30));
         tokenRepository.save(token);
         return new TokenResponse(accessToken, refreshToken);
-    }
-
+    }    
+    
     @Override
-    public void revokeToken(String token, int userId) {
-        Token existingToken = tokenRepository.findByTokenValue(token)
-                .orElseThrow(() -> new RuntimeException("Token not found"));
-        
-        if (existingToken != null && existingToken.getUserId() == userId) {
-            existingToken.setRevoked(true);
-            tokenRepository.save(existingToken);
+    public boolean revokeToken(String token) {
+        if (token == null || token.trim().isEmpty()) {
+            return false;
         }
+        try {
+            
+
+            Token existingToken = tokenRepository.findByTokenValue(token)
+                    .orElse(null);
+            
+            if (existingToken != null) {
+                existingToken.setRevoked(true);
+                tokenRepository.save(existingToken);
+                return true;
+            }
+        } catch (Exception e) {
+            System.err.println("Error revoking token: " + e.getMessage());
+        }
+        return false;
     }
 }

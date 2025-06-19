@@ -48,7 +48,6 @@ public class JwtUtil {
                 .compact();
     }
 
-    // Overloaded method để generate access token từ email và role
     public String generateAccessToken(String email, String role) {
         return Jwts.builder()
                 .setSubject(email)
@@ -82,7 +81,9 @@ public class JwtUtil {
 
     public String extractRole(String token) {
         return parseToken(token).get("role", String.class);
-    }    public boolean isTokenExpired(String token) {
+    }
+    
+    public boolean isTokenExpired(String token) {
         try {
             return parseToken(token).getExpiration().before(new Date());
         } catch (Exception e) {
@@ -100,11 +101,15 @@ public class JwtUtil {
     }
 
     public boolean verifyToken(String token) {
+        if (token == null || token.isEmpty()) {
+            return false;
+        }
+        
         try {
             parseToken(token);
             return true;
-        } catch (JwtException e) {
-            throw new InvalidTokenException("Invalid JWT token");
+        } catch (Exception e) {
+            return false;
         }
     }
 
@@ -116,7 +121,7 @@ public class JwtUtil {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (JwtException e) {
-            throw new RuntimeException("Invalid JWT token", e);
+            throw new InvalidTokenException("Invalid JWT token");
         }
     }
 }

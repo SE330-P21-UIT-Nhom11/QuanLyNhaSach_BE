@@ -22,14 +22,11 @@ public class DotEnvEnvironmentPostProcessor implements EnvironmentPostProcessor 
             Map<String, Object> dotenvProperties = new HashMap<>();
             dotenv.entries().forEach(entry -> {
                 dotenvProperties.put(entry.getKey(), entry.getValue());
-                System.out.println("Loaded env variable: " + entry.getKey() + " = " + entry.getValue());
             });
             
             environment.getPropertySources().addFirst(
                 new MapPropertySource("dotenv", dotenvProperties)
             );
-            
-            System.out.println("Successfully loaded " + dotenvProperties.size() + " environment variables from .env");
         } catch (Exception e) {
             // Nếu không load được .env thì bỏ qua
             System.err.println("Could not load .env file: " + e.getMessage());

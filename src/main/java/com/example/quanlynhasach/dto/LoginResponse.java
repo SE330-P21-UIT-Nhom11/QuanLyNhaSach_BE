@@ -1,9 +1,9 @@
 package com.example.quanlynhasach.dto;
 
 public class LoginResponse {
-    private String token;
+    private String accessToken;
     private String refreshToken;
-    private String email;
+    private String email; 
     private String name;
     private String role;
     private String message;
@@ -11,8 +11,8 @@ public class LoginResponse {
     public LoginResponse() {
     }
 
-    public LoginResponse(String token, String refreshToken, String email, String name, String role, String message) {
-        this.token = token;
+    public LoginResponse(String accessToken, String refreshToken, String email, String name, String role, String message) {
+        this.accessToken = accessToken;
         this.refreshToken = refreshToken;
         this.email = email;
         this.name = name;
@@ -20,12 +20,12 @@ public class LoginResponse {
         this.message = message;
     }
 
-    public String getToken() {
-        return token;
+    public String getAccessToken() {
+        return accessToken;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 
     public String getRefreshToken() {

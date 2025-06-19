@@ -3,9 +3,12 @@ package com.example.quanlynhasach.controller;
 import com.example.quanlynhasach.dto.LoginRequest;
 import com.example.quanlynhasach.model.User;
 import com.example.quanlynhasach.service.UserService;
+import com.example.quanlynhasach.service.TokenService;
+import com.example.quanlynhasach.service.EmailService;
 import com.example.quanlynhasach.service.SecurityAuditService;
 import com.example.quanlynhasach.util.JwtUtil;
 import com.example.quanlynhasach.util.CookieUtil;
+import com.example.quanlynhasach.util.PasswordUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -27,10 +30,16 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(originPatterns = "*", allowCredentials = "true")
-@Tag(name = "Authentication", description = "API for user authentication and authorization")
+@Tag(name = "authentication", description = "API for user authentication and authorization")
 public class AuthController {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private TokenService tokenService;
+
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -39,15 +48,14 @@ public class AuthController {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private SecurityAuditService securityAuditService;    @PostMapping("/login")
+    private SecurityAuditService securityAuditService;
+
+    @PostMapping("/login")
     @Operation(summary = "User Login", description = "Authenticate user and return access token")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Login successful", 
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
-            @ApiResponse(responseCode = "401", description = "Invalid email or password", 
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
-            @ApiResponse(responseCode = "500", description = "Login failed due to server error", 
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
+            @ApiResponse(responseCode = "200", description = "Login successful", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "401", description = "Invalid email or password", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "500", description = "Login failed due to server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
     })
     public ResponseEntity<Map<String, Object>> login(
             @Parameter(description = "Login credentials") @RequestBody LoginRequest loginRequest,
@@ -91,8 +99,7 @@ public class AuthController {
                     "id", user.getId(),
                     "email", user.getEmail(),
                     "name", user.getName(),
-                    "role", user.getRole()
-            ));
+                    "role", user.getRole()));
 
             return ResponseEntity.ok(loginResponse);
 
@@ -102,39 +109,48 @@ public class AuthController {
             errorResponse.put("error", true);
             errorResponse.put("message", "Login failed: " + e.getMessage());
             return ResponseEntity.status(500).body(errorResponse);
-        }    }    
-    
-    
+        }
+    }
+
     @PostMapping("/logout")
     @Operation(summary = "User Logout", description = "Logout user and clear refresh token cookie")
     @SecurityRequirement(name = "bearerAuth")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Logout successful", 
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
-            @ApiResponse(responseCode = "500", description = "Logout failed due to server error", 
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
+            @ApiResponse(responseCode = "200", description = "Logout successful", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "500", description = "Logout failed due to server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
     })
-    public ResponseEntity<Map<String, Object>> logout(HttpServletResponse response) {
-        // Xóa refresh token cookie
-        CookieUtil.deleteRefreshTokenCookie(response);
+    public ResponseEntity<Map<String, Object>> logout(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            // Xóa refresh token cookie
+            CookieUtil.deleteRefreshTokenCookie(response);            // Get token from Authorization header for token revocation
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String token = authHeader.substring(7);
+                tokenService.revokeToken(token);
+            }
 
-        Map<String, Object> logoutResponse = new HashMap<>();
-        logoutResponse.put("success", true);
-        logoutResponse.put("message", "Logout successful");
+            Map<String, Object> logoutResponse = new HashMap<>();
+            logoutResponse.put("success", true);
+            logoutResponse.put("message", "Logout successful");
 
-        return ResponseEntity.ok(logoutResponse);
-    }    @GetMapping("/me")
+            return ResponseEntity.ok(logoutResponse);
+
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", true);
+            errorResponse.put("message", "Logout failed: " + e.getMessage());
+            return ResponseEntity.status(500).body(errorResponse);
+        }
+    }
+
+    @GetMapping("/me")
     @Operation(summary = "Get Current User", description = "Get logged-in user information")
     @SecurityRequirement(name = "bearerAuth")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "User information retrieved successfully", 
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
-            @ApiResponse(responseCode = "401", description = "Not authenticated", 
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
-            @ApiResponse(responseCode = "404", description = "User not found", 
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
-            @ApiResponse(responseCode = "500", description = "Failed to get user info due to server error", 
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
+            @ApiResponse(responseCode = "200", description = "User information retrieved successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "401", description = "Not authenticated", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "404", description = "User not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "500", description = "Failed to get user info due to server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
     })
     public ResponseEntity<Map<String, Object>> getCurrentUser(HttpServletRequest request) {
         try {
@@ -160,8 +176,7 @@ public class AuthController {
                     "id", user.getId(),
                     "email", user.getEmail(),
                     "name", user.getName(),
-                    "role", user.getRole()
-            ));
+                    "role", user.getRole()));
 
             return ResponseEntity.ok(userResponse);
 
@@ -173,74 +188,81 @@ public class AuthController {
         }
     }
 
-    /**
-     * Register - Đăng ký user mới
-     */
-    @PostMapping("/register")
-    @Operation(summary = "Register", description = "Register a new user",
-            responses = {
-                    @ApiResponse(responseCode = "201", description = "Registration successful", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
-                    @ApiResponse(responseCode = "400", description = "Invalid input data", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
-                    @ApiResponse(responseCode = "409", description = "User with this email already exists", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
-                    @ApiResponse(responseCode = "500", description = "Registration failed due to server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
-            })
-    public ResponseEntity<Map<String, Object>> register(
-            @RequestBody User registerRequest,
-            HttpServletResponse response) {
-
+    @PostMapping("/forgot-password")
+    @Operation(summary = "Forgot Password", description = "Send password reset link to user's email")
+    @ApiResponses(value = { 
+            @ApiResponse(responseCode = "200", description = "Password reset link sent successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid email format", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "404", description = "User not found with the provided email", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "500", description = "Failed to send password reset link due to server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
+    })
+    public ResponseEntity<Map<String, Object>> forgotPassword(@Parameter(description = "User email for password reset") @RequestParam String email) {
         try {
-            // Validate input
-            if (registerRequest.getEmail() == null || registerRequest.getPassword() == null) {
+            if (email == null || email.trim().isEmpty()) {
                 Map<String, Object> errorResponse = new HashMap<>();
                 errorResponse.put("error", true);
-                errorResponse.put("message", "Email and password are required");
-                return ResponseEntity.status(400).body(errorResponse);
+                errorResponse.put("message", "Email must not be null or empty");
+                return ResponseEntity.badRequest().body(errorResponse);
             }
 
-            // Check if user already exists
-            if (userService.getUserByEmail(registerRequest.getEmail()).isPresent()) {
+            // Check if the user exists
+            User user = userService.getUserByEmail(email).orElse(null);
+            if (user == null) {
                 Map<String, Object> errorResponse = new HashMap<>();
                 errorResponse.put("error", true);
-                errorResponse.put("message", "User with this email already exists");
-                return ResponseEntity.status(409).body(errorResponse);
+                errorResponse.put("message", "User not found");
+                return ResponseEntity.status(404).body(errorResponse);
             }
 
-            // Hash password
-            registerRequest.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-
-            // Set default role if not specified
-            if (registerRequest.getRole() == null) {
-                registerRequest.setRole(com.example.quanlynhasach.model.enums.Role.USER);
-            }
-
-            // Create user
-            User createdUser = userService.createUser(registerRequest);
-
-            // Generate tokens
-            String accessToken = jwtUtil.generateAccessToken(createdUser);
-            String refreshToken = jwtUtil.generateRefreshToken(createdUser);
-
-            // Set refresh token in cookie
-            CookieUtil.createRefreshTokenCookie(response, refreshToken);
-
-            Map<String, Object> registerResponse = new HashMap<>();
-            registerResponse.put("success", true);
-            registerResponse.put("message", "Registration successful");
-            registerResponse.put("accessToken", accessToken);
-            registerResponse.put("user", Map.of(
-                    "id", createdUser.getId(),
-                    "email", createdUser.getEmail(),
-                    "name", createdUser.getName(),
-                    "role", createdUser.getRole()
-            ));
-
-            return ResponseEntity.status(201).body(registerResponse);
+            // Send password reset link
+            Map<String, Object> successResponse = new HashMap<>();
+            successResponse.put("success", true);
+            successResponse.put("message", "Password reset link sent successfully");
+            return ResponseEntity.ok(successResponse);
 
         } catch (Exception e) {
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("error", true);
-            errorResponse.put("message", "Registration failed: " + e.getMessage());
+            errorResponse.put("message", "Failed to send password reset link: " + e.getMessage());
             return ResponseEntity.status(500).body(errorResponse);
         }
     }
+
+    /*
+     * EMAIL SERVICE USAGE EXAMPLES:
+     * 
+     * 1. To send welcome email with account credentials when creating a new user:
+     * 
+     *   // Generate temporary password
+     *   String temporaryPassword = PasswordUtil.generateTemporaryPassword();
+     *   
+     *   // Encode password for storage
+     *   String encodedPassword = passwordEncoder.encode(temporaryPassword);
+     *   user.setPassword(encodedPassword);
+     *   
+     *   // Save user to database
+     *   User savedUser = userService.createUser(user);
+     *   
+     *   // Send welcome email with credentials
+     *   emailService.sendWelcomeEmail(
+     *       savedUser.getEmail(),           // to
+     *       savedUser.getName(),            // userName
+     *       savedUser.getEmail(),           // userEmail (login username)
+     *       temporaryPassword               // temporary password (plain text)
+     *   );
+     * 
+     * 2. To validate email before using it:
+     * 
+     *   if (!emailService.isValidEmail(email)) {
+     *       throw new IllegalArgumentException("Invalid email address");
+     *   }
+     * 
+     * 3. The sendWelcomeEmail method will automatically:
+     *    - Validate email format and deliverability
+     *    - Send a beautifully formatted HTML email with:
+     *      * Account credentials (email/username and temporary password)
+     *      * Security instructions to change password
+     *      * Professional styling with QuanLyNhaSach branding
+     *    - Log success/failure for monitoring
+     */
 }

@@ -22,7 +22,9 @@ import java.util.Collections;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
-    private JwtUtil jwtUtil;    @Override
+    private JwtUtil jwtUtil;
+
+    @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, 
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
         
@@ -41,11 +43,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // Extract email từ token
-        if (token != null) {
-            try {
-                email = jwtUtil.extractEmail(token);
+        if (token != null) {            try {
+                if (!token.isEmpty()) {
+                    email = jwtUtil.extractEmail(token);
+                }
             } catch (Exception e) {
                 logger.debug("Invalid JWT token: " + e.getMessage());
+                // Không throw lỗi, để request tiếp tục tới endpoint public
             }
         }
 
