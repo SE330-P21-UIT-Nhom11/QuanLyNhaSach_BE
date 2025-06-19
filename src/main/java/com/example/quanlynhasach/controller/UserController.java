@@ -76,11 +76,9 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
-    }
-
-    @PostMapping("/login")
+    }    @PostMapping("/login")
     public String login(@RequestBody LoginRequest login) {
-        boolean success = userService.login(login.email, login.password);
+        boolean success = userService.login(login.getEmail(), login.getPassword());
         if (success) {
             return "Login successful!";
         } else {

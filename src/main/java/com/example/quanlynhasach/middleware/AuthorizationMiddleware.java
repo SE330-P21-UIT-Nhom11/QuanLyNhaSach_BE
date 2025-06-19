@@ -1,8 +1,10 @@
 package com.example.quanlynhasach.middleware;
 
 import com.example.quanlynhasach.config.RoleConfig;
+import com.example.quanlynhasach.model.Token;
 import com.example.quanlynhasach.model.enums.Permission;
 import com.example.quanlynhasach.model.enums.Role;
+import com.example.quanlynhasach.repository.TokenRepository;
 import com.example.quanlynhasach.util.JwtUtil;
 import com.example.quanlynhasach.util.CookieUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,12 +17,16 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class AuthorizationMiddleware implements Filter {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private TokenRepository tokenRepository;
 
     // Map các endpoint với quyền cần thiết
     private static final Map<String, Permission> ENDPOINT_PERMISSIONS = new HashMap<>();
@@ -119,14 +125,20 @@ public class AuthorizationMiddleware implements Filter {
                 accessTokenExpired = true; // Treat invalid token as expired
             }
         }
-        
-        if (accessToken == null || accessTokenExpired) {
+          if (accessToken == null || accessTokenExpired) {
             String refreshToken = CookieUtil.getRefreshTokenFromCookie(httpRequest);
             
             if (refreshToken != null && !refreshToken.isEmpty()) {
                 try {
                     // Verify token trước khi kiểm tra hết hạn
                     if (jwtUtil.verifyToken(refreshToken) && !jwtUtil.isTokenExpired(refreshToken)) {
+                        // Kiểm tra xem refresh token có bị revoked hay không
+                        Optional<Token> tokenInDb = tokenRepository.findByTokenValue(refreshToken);
+                        if (tokenInDb.isPresent() && tokenInDb.get().isRevoked()) {
+                            sendErrorResponse(httpResponse, 401, "Refresh token has been revoked");
+                            return;
+                        }
+                        
                         // Lấy thông tin từ refresh token để tạo access token mới
                         String email = jwtUtil.extractEmail(refreshToken);
                         String role = jwtUtil.extractRole(refreshToken);
@@ -196,9 +208,7 @@ public class AuthorizationMiddleware implements Filter {
             // Cho phép client đọc header Authorization
             httpResponse.setHeader("Access-Control-Expose-Headers", "Authorization");
         }
-    }
-
-    private boolean isPublicEndpoint(String method, String path) {
+    }    private boolean isPublicEndpoint(String method, String path) {
         // Các endpoint không cần xác thực
         return path.startsWith("/api/auth/") ||
                path.equals("/api/products") && method.equals("GET") ||
@@ -214,7 +224,7 @@ public class AuthorizationMiddleware implements Filter {
                path.startsWith("/v3/api-docs") ||
                path.startsWith("/swagger-resources") ||
                path.startsWith("/webjars");
-    }    private Role getUserRoleFromToken(String token) {
+    }private Role getUserRoleFromToken(String token) {
         try {
             String roleString = jwtUtil.extractRole(token);
             return Role.valueOf(roleString.toUpperCase());

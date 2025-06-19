@@ -1,6 +1,7 @@
 package com.example.quanlynhasach.service.impl;
 
 import com.example.quanlynhasach.service.EmailService;
+import jakarta.annotation.PostConstruct;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
@@ -17,13 +18,20 @@ import java.util.regex.Pattern;
 public class EmailServiceImpl implements EmailService {
 
     @Autowired
-    private JavaMailSender mailSender;
-
-    @Value("${MAIL_FROM}")
+    private JavaMailSender mailSender;    @Value("${MAIL_FROM}")
     private String fromEmail;
 
     @Value("${MAIL_FROM_NAME}")
     private String fromName;
+
+    public EmailServiceImpl() {
+        // Constructor
+    }
+
+    @PostConstruct
+    public void init() {
+        log.info("EmailService initialized with fromEmail: {}, fromName: {}", fromEmail, fromName);
+    }
 
     // Email validation pattern
     private static final String EMAIL_PATTERN = 
@@ -190,30 +198,28 @@ public class EmailServiceImpl implements EmailService {
             log.error("Failed to send password reset email to: {}", to, e);
             // Don't throw exception for password reset emails to avoid security issues
         }
-    }
-
-    @Override
+    }    @Override
     public void sendWelcomeEmail(String to, String userName, String userEmail, String temporaryPassword) {
         try {
             // Validate email before sending
             validateEmailBeforeSending(to);
             
-            String subject = "Chào mừng đến với QuanLyNhaSach - Thông tin tài khoản của bạn";
+            String subject = "Chào mừng đến với BookManager - Thông tin tài khoản của bạn";
             
             String htmlContent = String.format("""
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
                     <div style="background: linear-gradient(135deg, #27ae60 0%%, #2ecc71 100%%); padding: 30px; text-align: center;">
-                        <h1 style="color: white; margin: 0; font-size: 24px;">QuanLyNhaSach</h1>
+                        <h1 style="color: white; margin: 0; font-size: 24px;">BookManager</h1>
                         <p style="color: white; margin: 10px 0 0 0; opacity: 0.9;">Chào mừng bạn đến với hệ thống!</p>
                     </div>
                     
                     <div style="padding: 30px;">
-                        <h2 style="color: #333; margin-bottom: 20px;">Chào mừng bạn đến với QuanLyNhaSach!</h2>
+                        <h2 style="color: #333; margin-bottom: 20px;">Chào mừng bạn đến với BookManager!</h2>
                         <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">
                             Xin chào <strong>%s</strong>,
                         </p>
                         <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">
-                            Tài khoản của bạn đã được tạo thành công tại QuanLyNhaSach. 
+                            Tài khoản của bạn đã được tạo thành công tại BookManager.
                             Dưới đây là thông tin đăng nhập của bạn:
                         </p>
                         
@@ -251,18 +257,16 @@ public class EmailServiceImpl implements EmailService {
                     
                     <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #e0e0e0;">
                         <p style="color: #999; font-size: 12px; margin: 0;">
-                            Email này được gửi tự động từ QuanLyNhaSach. Vui lòng không trả lời email này.<br>
+                            Email này được gửi tự động từ BookManager. Vui lòng không trả lời email này.<br>
                             Nếu có thắc mắc, vui lòng liên hệ với quản trị viên hệ thống.<br>
-                            © 2025 QuanLyNhaSach. Tất cả quyền được bảo lưu.
+                            © 2025 BookManager. Tất cả quyền được bảo lưu.
                         </p>
                     </div>
                 </div>
-                """, userName, userEmail, temporaryPassword);
-
-            sendHtmlEmail(to, subject, htmlContent);
-            log.info("Welcome email with credentials sent successfully to: {}", to);
+                """, userName, userEmail, temporaryPassword);            sendHtmlEmail(to, subject, htmlContent);
+            log.info("Welcome email sent successfully to: {}", to);
         } catch (MessagingException e) {
-            log.error("Email validation failed for welcome email to: {}", to, e);
+            log.error("Failed to send welcome email to: {}", to, e);
         } catch (Exception e) {
             log.error("Failed to send welcome email to: {}", to, e);
         }

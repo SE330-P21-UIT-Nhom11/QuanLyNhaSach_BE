@@ -20,9 +20,9 @@ public class Token {
     private String tokenValue;
 
     @Column(name = "expiration_time", nullable = false)
-    private java.time.LocalDateTime expirationTime;
-
-    @Column(name = "revoked", nullable = false)
+    private java.time.LocalDateTime expirationTime;    
+    
+    @Column(name = "revoked", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean revoked = false;
 
     @CreationTimestamp
@@ -31,16 +31,16 @@ public class Token {
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
-    private java.time.LocalDateTime updatedAt;
-
-    // Getters and setters
+    private java.time.LocalDateTime updatedAt;    // Getters and setters
     public Token() {
+        this.revoked = false;
     }
 
     public Token(int userId, String tokenValue, java.time.LocalDateTime expirationTime) {
         this.userId = userId;
         this.tokenValue = tokenValue;
         this.expirationTime = expirationTime;
+        this.revoked = false;
     }
 
     public int getId() {
