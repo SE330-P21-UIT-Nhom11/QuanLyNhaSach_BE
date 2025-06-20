@@ -3,11 +3,12 @@ package com.example.quanlynhasach.service;
 import com.example.quanlynhasach.model.User;
 import com.example.quanlynhasach.model.enums.Role;
 import java.util.List;
+import java.util.Optional;
 
 public interface UserService {
     List<User> getAllUsers();
 
-    User getUserById(int id);
+    Optional<User> getUserById(int id);
 
     User createUser(User user);
 
