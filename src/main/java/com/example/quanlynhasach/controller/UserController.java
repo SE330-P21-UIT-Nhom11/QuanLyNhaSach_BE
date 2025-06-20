@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
@@ -32,9 +31,12 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable int id) {
         try {
-            Optional<User> user = userService.getUserById(id);
-            return user.map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
+            User user = userService.getUserById(id);
+            if (user != null) {
+                return ResponseEntity.ok(user);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
@@ -55,9 +57,12 @@ public class UserController {
     @PatchMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable int id, @RequestBody User user) {
         try {
-            Optional<User> updatedUser = userService.updateUser(id, user);
-            return updatedUser.map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
+            User updatedUser = userService.updateUser(id, user);
+            if (updatedUser != null) {
+                return ResponseEntity.ok(updatedUser);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
@@ -76,13 +81,15 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
-    }    @PostMapping("/login")
+    }    
+  
+    @PostMapping("/login")
     public String login(@RequestBody LoginRequest login) {
         boolean success = userService.login(login.getEmail(), login.getPassword());
         if (success) {
-            return "Login successful!";
+            return ResponseEntity.ok("Login successful!");
         } else {
-            return "Invalid email or password.";
+            return ResponseEntity.badRequest().body("Invalid email or password.");
         }
     }
 }

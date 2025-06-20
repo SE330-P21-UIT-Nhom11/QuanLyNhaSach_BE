@@ -1,12 +1,15 @@
 package com.example.quanlynhasach.controller;
 
+import com.example.quanlynhasach.dto.OrderDTO;
 import com.example.quanlynhasach.model.Order;
 import com.example.quanlynhasach.service.OrderService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -16,19 +19,23 @@ public class OrderController {
     private OrderService orderService;
 
     @GetMapping
-    public ResponseEntity<List<Order>> getAllOrders() {
+    public ResponseEntity<List<OrderDTO>> getAllOrders() {
         try {
-            return ResponseEntity.ok(orderService.getAllOrders());
+            List<Order> orders = orderService.getAllOrders();
+            List<OrderDTO> dtos = orders.stream()
+                    .map(orderService::convertToDTO)
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(dtos);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Order> getOrderById(@PathVariable int id) {
+    public ResponseEntity<OrderDTO> getOrderById(@PathVariable int id) {
         try {
             return orderService.getOrderById(id)
-                    .map(ResponseEntity::ok)
+                    .map(order -> ResponseEntity.ok(orderService.convertToDTO(order)))
                     .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
@@ -36,21 +43,25 @@ public class OrderController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Order>> getOrdersByUserId(@PathVariable int userId) {
+    public ResponseEntity<List<OrderDTO>> getOrdersByUserId(@PathVariable int userId) {
         try {
-            return ResponseEntity.ok(orderService.getOrdersByUserId(userId));
+            List<Order> orders = orderService.getOrdersByUserId(userId);
+            List<OrderDTO> dtos = orders.stream()
+                    .map(orderService::convertToDTO)
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(dtos);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
     }
 
     @PostMapping
-    public ResponseEntity<?> createOrder(@RequestBody Order order) {
+    public ResponseEntity<?> createOrder(@RequestBody OrderDTO dto) {
         try {
-            Order createdOrder = orderService.createOrder(order);
-            return ResponseEntity.ok(createdOrder);
+            Order createdOrder = orderService.createOrderFromDTO(dto);
+            OrderDTO responseDTO = orderService.convertToDTO(createdOrder);
+            return ResponseEntity.ok(responseDTO);
         } catch (RuntimeException e) {
-            // ví dụ lỗi do user không tồn tại
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
@@ -58,11 +69,11 @@ public class OrderController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteOrder(@PathVariable int id) {
+    public ResponseEntity<?> deleteOrder(@PathVariable int id) {
         try {
             boolean deleted = orderService.deleteOrder(id);
             if (deleted) {
-                return ResponseEntity.noContent().build();
+                return ResponseEntity.ok("Đã xóa sản phẩm có ID = " + id);
             } else {
                 return ResponseEntity.notFound().build();
             }

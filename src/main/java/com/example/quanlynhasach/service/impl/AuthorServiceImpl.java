@@ -1,5 +1,6 @@
 package com.example.quanlynhasach.service.impl;
 
+import com.example.quanlynhasach.dto.AuthorDTO;
 import com.example.quanlynhasach.model.Author;
 import com.example.quanlynhasach.repository.AuthorRepository;
 import com.example.quanlynhasach.service.AuthorService;
@@ -49,5 +50,10 @@ public class AuthorServiceImpl implements AuthorService {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public AuthorDTO convertToDTO(Author author) {
+        return new AuthorDTO(author.getId(), author.getName(), author.getBio());
     }
 }

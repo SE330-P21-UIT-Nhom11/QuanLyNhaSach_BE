@@ -23,7 +23,6 @@ public class Review {
 
     private String comment;
 
-    // Constructors
     public Review() {
     }
 
