@@ -22,6 +22,7 @@ public class Cart {
     private LocalDateTime createAt;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<CartItem> cartItems;
 
     public Cart() {

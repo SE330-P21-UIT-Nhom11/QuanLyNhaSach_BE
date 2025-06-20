@@ -1,5 +1,6 @@
 package com.example.quanlynhasach.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.util.List;
@@ -33,10 +34,12 @@ public class Product {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "publisher_id", referencedColumnName = "id")
+    @JsonIgnore
     private Publisher publisher;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", referencedColumnName = "id")
+    @JsonIgnore
     private Category category;
 
     @ManyToMany
