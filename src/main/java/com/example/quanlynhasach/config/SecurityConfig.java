@@ -34,18 +34,24 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth                        // Public endpoints
+                .authorizeHttpRequests(auth -> auth
+                        // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/products").permitAll()
                         .requestMatchers("/api/categories").permitAll()
                         .requestMatchers("/api/authors").permitAll()
                         .requestMatchers("/api/publishers").permitAll()
                         .requestMatchers("/api/reviews").permitAll()
-                        // Swagger/OpenAPI endpoints
-                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        .requestMatchers("/api-docs", "/api-docs/**").permitAll()
-                        .requestMatchers("/v3/api-docs", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/swagger-resources/**", "/webjars/**").permitAll()
+                        // Swagger/OpenAPI endpoints - comprehensive list
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/swagger-ui.html").permitAll()
+                        .requestMatchers("/api-docs/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-resources/**").permitAll()
+                        .requestMatchers("/webjars/**").permitAll()
+                        .requestMatchers("/swagger-ui/index.html").permitAll()
+                        .requestMatchers("/swagger-ui/swagger-ui-bundle.js").permitAll()
+                        .requestMatchers("/swagger-ui/swagger-ui-standalone-preset.js").permitAll()
                         // Temporarily allow admin endpoints for testing (remove in production)
                         .requestMatchers("/api/admin/**").permitAll()
                         // Other protected endpoints

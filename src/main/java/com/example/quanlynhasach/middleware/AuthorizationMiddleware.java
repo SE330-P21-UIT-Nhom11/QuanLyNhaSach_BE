@@ -104,10 +104,12 @@ public class AuthorizationMiddleware implements Filter {
         
         // Bỏ qua các endpoint public
         if (isPublicEndpoint(method, path)) {
-            System.out.println("Public endpoint accessed: " + method + " " + path);
+            System.out.println("✓ Public endpoint accessed: " + method + " " + path);
             chain.doFilter(request, response);
             return;
-        }        // Lấy access token từ Bearer header
+        }
+        
+        System.out.println("✗ Protected endpoint accessed: " + method + " " + path);        // Lấy access token từ Bearer header
         String authHeader = httpRequest.getHeader("Authorization");
         String accessToken = null;
         boolean tokenRefreshed = false;
@@ -218,13 +220,20 @@ public class AuthorizationMiddleware implements Filter {
                path.startsWith("/api/reviews") && method.equals("GET") ||
                // Temporarily allow admin endpoints for testing
                path.startsWith("/api/admin/") ||
-               // API Documentation endpoints
+               // API Documentation endpoints - comprehensive match
                path.startsWith("/swagger-ui") ||
+               path.equals("/swagger-ui.html") ||
                path.startsWith("/api-docs") ||
                path.startsWith("/v3/api-docs") ||
                path.startsWith("/swagger-resources") ||
-               path.startsWith("/webjars");
-    }private Role getUserRoleFromToken(String token) {
+               path.startsWith("/webjars") ||
+               // Additional Swagger paths
+               path.equals("/swagger-ui/index.html") ||
+               path.contains("swagger-ui-bundle.js") ||
+               path.contains("swagger-ui-standalone-preset.js");
+    }
+
+    private Role getUserRoleFromToken(String token) {
         try {
             String roleString = jwtUtil.extractRole(token);
             return Role.valueOf(roleString.toUpperCase());
