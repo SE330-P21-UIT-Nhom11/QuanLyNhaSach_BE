@@ -22,16 +22,15 @@ public class User {
     private String password;
     private String phone;
     private String address;
-    
+
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private Role role = Role.USER; // Default role is USER
 
-
     public User(String name, String email, String password, String phone, String address, Role role) {
         this.name = name;
         this.email = email;
-        this.password = password;        
+        this.password = password;
         this.phone = phone;
         this.address = address;
         this.role = role;
@@ -54,13 +53,5 @@ public class User {
 
     public void setRoleFromString(String role) {
         this.role = Role.valueOf(role.toUpperCase());
-    }
-
-    public Cart getCart() {
-        return cart;
-    }
-
-    public void setCart(Cart cart) {
-        this.cart = cart;
     }
 }

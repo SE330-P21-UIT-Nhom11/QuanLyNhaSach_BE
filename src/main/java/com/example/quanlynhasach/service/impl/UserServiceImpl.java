@@ -25,8 +25,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> getUserById(int id) {
-        return userRepository.findById(id); 
+    public User getUserById(int id) {
+        return userRepository.findById(id).orElse(null);
     }
 
     @Override
@@ -80,8 +80,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> getUserByEmail(String email) {
+    public User getUserByEmail(String email) {
         User user = userRepository.findByEmail(email);
-        return Optional.ofNullable(user);
+        return user;
     }
 }

@@ -61,7 +61,7 @@ public class AuthController {
 
         try {
             // Xác thực user
-            User user = userService.getUserByEmail(loginRequest.getEmail()).orElse(null);
+            User user = userService.getUserByEmail(loginRequest.getEmail());
             if (user == null) {
                 securityAuditService.logFailedLogin(loginRequest.getEmail(), "User not found", request);
                 Map<String, Object> errorResponse = new HashMap<>();
@@ -75,14 +75,16 @@ public class AuthController {
                 Map<String, Object> errorResponse = new HashMap<>();
                 errorResponse.put("error", true);
                 errorResponse.put("message", "Invalid email or password");
-                return ResponseEntity.status(401).body(errorResponse);            } // Tạo tokens bằng TokenService
+                return ResponseEntity.status(401).body(errorResponse);
+            } // Tạo tokens bằng TokenService
             TokenResponse tokenResponse = tokenService.generateAuthTokens(user);
 
             // Set refresh token vào cookie
             CookieUtil.createRefreshTokenCookie(response, tokenResponse.getRefreshToken());
 
             // Log successful login
-            securityAuditService.logSuccessfulLogin(user.getEmail(), request);            // Trả về access token trong response body
+            securityAuditService.logSuccessfulLogin(user.getEmail(), request); // Trả về access token trong response
+                                                                               // body
             Map<String, Object> loginResponse = new HashMap<>();
             loginResponse.put("success", true);
             loginResponse.put("message", "Login successful");
@@ -110,16 +112,17 @@ public class AuthController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Logout successful", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
             @ApiResponse(responseCode = "500", description = "Logout failed due to server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
-    })    public ResponseEntity<Map<String, Object>> logout(HttpServletRequest request, HttpServletResponse response) {
+    })
+    public ResponseEntity<Map<String, Object>> logout(HttpServletRequest request, HttpServletResponse response) {
         try {
             // Lấy refresh token từ cookie
             String refreshToken = CookieUtil.getRefreshTokenFromCookie(request);
-            
+
             // Nếu có refresh token, revoke nó trong database
             if (refreshToken != null) {
                 tokenService.revokeToken(refreshToken);
             }
-            
+
             // Xóa refresh token cookie
             CookieUtil.deleteRefreshTokenCookie(response);
 
@@ -156,7 +159,7 @@ public class AuthController {
                 errorResponse.put("message", "Not authenticated");
                 return ResponseEntity.status(401).body(errorResponse);
             }
-            User user = userService.getUserByEmail(userEmail).orElse(null);
+            User user = userService.getUserByEmail(userEmail);
             if (user == null) {
                 Map<String, Object> errorResponse = new HashMap<>();
                 errorResponse.put("error", true);
@@ -183,68 +186,81 @@ public class AuthController {
     }
 
     // @PostMapping("/forgot-password")
-    // @Operation(summary = "Forgot Password", description = "Send password reset link to user's email")
+    // @Operation(summary = "Forgot Password", description = "Send password reset
+    // link to user's email")
     // @ApiResponses(value = {
-    //         @ApiResponse(responseCode = "200", description = "Password reset link sent successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
-    //         @ApiResponse(responseCode = "400", description = "Invalid email format", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
-    //         @ApiResponse(responseCode = "404", description = "User not found with the provided email", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
-    //         @ApiResponse(responseCode = "500", description = "Failed to send password reset link due to server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
+    // @ApiResponse(responseCode = "200", description = "Password reset link sent
+    // successfully", content = @Content(mediaType = "application/json", schema =
+    // @Schema(implementation = Map.class))),
+    // @ApiResponse(responseCode = "400", description = "Invalid email format",
+    // content = @Content(mediaType = "application/json", schema =
+    // @Schema(implementation = Map.class))),
+    // @ApiResponse(responseCode = "404", description = "User not found with the
+    // provided email", content = @Content(mediaType = "application/json", schema =
+    // @Schema(implementation = Map.class))),
+    // @ApiResponse(responseCode = "500", description = "Failed to send password
+    // reset link due to server error", content = @Content(mediaType =
+    // "application/json", schema = @Schema(implementation = Map.class)))
     // })
     // public ResponseEntity<Map<String, Object>> forgotPassword(
-    //         @Parameter(description = "User email for password reset") @RequestParam String email) {
-    //     try {
-    //         if (email == null || email.trim().isEmpty()) {
-    //             Map<String, Object> errorResponse = new HashMap<>();
-    //             errorResponse.put("error", true);
-    //             errorResponse.put("message", "Email must not be null or empty");
-    //             return ResponseEntity.badRequest().body(errorResponse);
-    //         }
+    // @Parameter(description = "User email for password reset") @RequestParam
+    // String email) {
+    // try {
+    // if (email == null || email.trim().isEmpty()) {
+    // Map<String, Object> errorResponse = new HashMap<>();
+    // errorResponse.put("error", true);
+    // errorResponse.put("message", "Email must not be null or empty");
+    // return ResponseEntity.badRequest().body(errorResponse);
+    // }
 
-    //         // Validate email format
-    //         if (!emailService.isValidEmail(email)) {
-    //             Map<String, Object> errorResponse = new HashMap<>();
-    //             errorResponse.put("error", true);
-    //             errorResponse.put("message", "Invalid email format");
-    //             return ResponseEntity.badRequest().body(errorResponse);
-    //         }
+    // // Validate email format
+    // if (!emailService.isValidEmail(email)) {
+    // Map<String, Object> errorResponse = new HashMap<>();
+    // errorResponse.put("error", true);
+    // errorResponse.put("message", "Invalid email format");
+    // return ResponseEntity.badRequest().body(errorResponse);
+    // }
 
-    //         // Check if the user exists
-    //         User user = userService.getUserByEmail(email).orElse(null);
-    //         if (user == null) {
-    //             Map<String, Object> errorResponse = new HashMap<>();
-    //             errorResponse.put("error", true);
-    //             errorResponse.put("message", "User not found");
-    //             return ResponseEntity.status(404).body(errorResponse);
-    //         }
+    // // Check if the user exists
+    // User user = userService.getUserByEmail(email).orElse(null);
+    // if (user == null) {
+    // Map<String, Object> errorResponse = new HashMap<>();
+    // errorResponse.put("error", true);
+    // errorResponse.put("message", "User not found");
+    // return ResponseEntity.status(404).body(errorResponse);
+    // }
 
-    //         // Generate reset token
-    //         String resetToken = jwtUtil.generateResetToken(user);
+    // // Generate reset token
+    // String resetToken = jwtUtil.generateResetToken(user);
 
-    //         // Create password reset link
-    //         String resetLink = "http://localhost:3000/reset-password?token=" + resetToken;
+    // // Create password reset link
+    // String resetLink = "http://localhost:3000/reset-password?token=" +
+    // resetToken;
 
-    //         // Send password reset email
-    //         emailService.sendPasswordResetEmail(user.getEmail(), user.getName(), resetLink);
+    // // Send password reset email
+    // emailService.sendPasswordResetEmail(user.getEmail(), user.getName(),
+    // resetLink);
 
-    //         // Log security event
-    //         securityAuditService.logPasswordResetRequest(user.getEmail(),
-    //                 HttpServletRequest.class.cast(
-    //                         org.springframework.web.context.request.RequestContextHolder
-    //                                 .currentRequestAttributes()
-    //                                 .resolveReference(
-    //                                         org.springframework.web.context.request.RequestAttributes.REFERENCE_REQUEST)));
+    // // Log security event
+    // securityAuditService.logPasswordResetRequest(user.getEmail(),
+    // HttpServletRequest.class.cast(
+    // org.springframework.web.context.request.RequestContextHolder
+    // .currentRequestAttributes()
+    // .resolveReference(
+    // org.springframework.web.context.request.RequestAttributes.REFERENCE_REQUEST)));
 
-    //         Map<String, Object> successResponse = new HashMap<>();
-    //         successResponse.put("success", true);
-    //         successResponse.put("message", "Password reset link sent successfully");
-    //         return ResponseEntity.ok(successResponse);
+    // Map<String, Object> successResponse = new HashMap<>();
+    // successResponse.put("success", true);
+    // successResponse.put("message", "Password reset link sent successfully");
+    // return ResponseEntity.ok(successResponse);
 
-    //     } catch (Exception e) {
-    //         Map<String, Object> errorResponse = new HashMap<>();
-    //         errorResponse.put("error", true);
-    //         errorResponse.put("message", "Failed to send password reset link: " + e.getMessage());
-    //         return ResponseEntity.status(500).body(errorResponse);
-    //     }
+    // } catch (Exception e) {
+    // Map<String, Object> errorResponse = new HashMap<>();
+    // errorResponse.put("error", true);
+    // errorResponse.put("message", "Failed to send password reset link: " +
+    // e.getMessage());
+    // return ResponseEntity.status(500).body(errorResponse);
+    // }
     // }
 
     /*

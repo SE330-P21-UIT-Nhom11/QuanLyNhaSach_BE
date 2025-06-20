@@ -81,10 +81,10 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
-    }    
-  
+    }
+
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest login) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest login) {
         boolean success = userService.login(login.getEmail(), login.getPassword());
         if (success) {
             return ResponseEntity.ok("Login successful!");

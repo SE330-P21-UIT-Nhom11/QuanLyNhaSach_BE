@@ -18,9 +18,9 @@ public interface UserService {
     public boolean login(String email, String password);
 
     public User loginAndReturnUser(String email, String password);
-    
+
     // Thêm method để lấy role của user
     Role getUserRole(String email);
-    
-    Optional<User> getUserByEmail(String email);
+
+    User getUserByEmail(String email);
 }
