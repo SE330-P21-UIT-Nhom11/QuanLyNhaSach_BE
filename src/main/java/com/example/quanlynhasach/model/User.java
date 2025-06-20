@@ -1,9 +1,16 @@
 package com.example.quanlynhasach.model;
 
+import com.example.quanlynhasach.model.enums.Role;
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Entity
 @Table(name = "user")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
 
     @Id
@@ -15,77 +22,38 @@ public class User {
     private String password;
     private String phone;
     private String address;
-    private String role;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private Role role = Role.USER; // Default role is USER
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Cart cart;
 
-    public User() {
+    public User(String name, String email, String password, String phone, String address, Role role) {
+        this.name = name;
+        this.email = email;
+        this.password = password;        
+        this.phone = phone;
+        this.address = address;
+        this.role = role;
     }
 
+    // Constructor with String role for backward compatibility
     public User(String name, String email, String password, String phone, String address, String role) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.phone = phone;
         this.address = address;
-        this.role = role;
+        this.role = Role.valueOf(role.toUpperCase());
     }
 
-    public int getId() {
-        return id;
+    // Methods for backward compatibility
+    public String getRoleAsString() {
+        return role != null ? role.getName() : Role.USER.getName();
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
+    public void setRoleFromString(String role) {
+        this.role = Role.valueOf(role.toUpperCase());
     }
 
     public Cart getCart() {

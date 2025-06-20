@@ -3,7 +3,6 @@ package com.example.quanlynhasach.controller;
 import com.example.quanlynhasach.dto.ProductDTO;
 import com.example.quanlynhasach.model.*;
 import com.example.quanlynhasach.service.*;
-// import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

@@ -81,12 +81,11 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
-    }
-
-    // Xác thực đăng nhập
+    }    
+  
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest login) {
-        boolean success = userService.login(login.email, login.password);
+    public String login(@RequestBody LoginRequest login) {
+        boolean success = userService.login(login.getEmail(), login.getPassword());
         if (success) {
             return ResponseEntity.ok("Login successful!");
         } else {
