@@ -73,6 +73,7 @@ public class RoleConfig {
             Permission.PUBLISHER_DELETE,
             
             // Quản lý user
+            Permission.USER_READ,
             Permission.USER_WRITE,
             Permission.USER_DELETE,
             

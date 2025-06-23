@@ -38,12 +38,15 @@ RUN chown -R appuser:appuser /app
 # Switch to non-root user
 USER appuser
 
-# Expose port
-EXPOSE 8080
+# Set default port (có thể override bằng environment variable)
+ENV SERVER_PORT=8080
 
-# Health check
+# Expose port động từ environment variable
+EXPOSE $SERVER_PORT
+
+# Health check với port động
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-  CMD curl -f http://localhost:8080/actuator/health || exit 1
+  CMD curl -f http://localhost:${SERVER_PORT}/actuator/health || exit 1
 
-# Run the application
-ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.war"]
+# Run the application với port động
+ENTRYPOINT ["sh", "-c", "java -Djava.security.egd=file:/dev/./urandom -Dserver.port=${SERVER_PORT} -jar app.war"]

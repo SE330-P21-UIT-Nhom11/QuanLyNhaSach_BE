@@ -6,6 +6,7 @@ import com.example.quanlynhasach.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.Optional;
 
 import java.util.List;
 
@@ -31,12 +32,8 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable int id) {
         try {
-            User user = userService.getUserById(id);
-            if (user != null) {
-                return ResponseEntity.ok(user);
-            } else {
-                return ResponseEntity.notFound().build();
-            }
+            Optional<User> user = userService.getUserById(id);
+            return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
@@ -81,10 +78,10 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
-    }    
-  
+    }
+
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest login) {
+    public ResponseEntity<String> login(@RequestBody LoginRequest login) {
         boolean success = userService.login(login.getEmail(), login.getPassword());
         if (success) {
             return ResponseEntity.ok("Login successful!");
