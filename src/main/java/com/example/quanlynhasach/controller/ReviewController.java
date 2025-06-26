@@ -63,6 +63,16 @@ public class ReviewController {
         }
     }
 
+    @GetMapping("/product/{productId}")
+    public ResponseEntity<?> getReviewsByProductId(@PathVariable int productId) {
+        try {
+            List<Review> reviews = reviewService.getReviewsByProductId(productId);
+            return ResponseEntity.ok(reviews);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Lỗi khi lấy danh sách đánh giá: " + e.getMessage());
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteReview(@PathVariable int id) {
         try {

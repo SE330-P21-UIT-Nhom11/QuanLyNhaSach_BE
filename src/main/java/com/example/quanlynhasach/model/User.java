@@ -27,29 +27,31 @@ public class User {
     private String password;
     private String phone;
     private String address;
-    
+    private double point = 0.0;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private Role role = Role.USER; // Default role is USER
 
-
-    public User(String name, String email, String password, String phone, String address, Role role) {
+    public User(String name, String email, String password, String phone, String address, Role role, double point) {
         this.name = name;
         this.email = email;
-        this.password = password;        
+        this.password = password;
         this.phone = phone;
         this.address = address;
         this.role = role;
+        this.point = point;
     }
 
     // Constructor with String role for backward compatibility
-    public User(String name, String email, String password, String phone, String address, String role) {
+    public User(String name, String email, String password, String phone, String address, String role, double point) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.phone = phone;
         this.address = address;
         this.role = Role.valueOf(role.toUpperCase());
+        this.point = point;
     }
 
     // Methods for backward compatibility
@@ -67,5 +69,13 @@ public class User {
 
     public void setCart(Cart cart) {
         this.cart = cart;
+    }
+
+    public double getPoint() {
+        return point;
+    }
+
+    public void setPoint(double point) {
+        this.point = point;
     }
 }

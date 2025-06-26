@@ -32,6 +32,8 @@ public class Product {
 
     private String coverImage;
 
+    private double rating = 5.0;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "publisher_id", referencedColumnName = "id")
     @JsonIgnore
@@ -125,6 +127,14 @@ public class Product {
 
     public void setCoverImage(String coverImage) {
         this.coverImage = coverImage;
+    }
+
+    public double getRating() {
+        return rating;
+    }
+
+    public void setRating(double rating) {
+        this.rating = rating;
     }
 
     public Publisher getPublisher() {

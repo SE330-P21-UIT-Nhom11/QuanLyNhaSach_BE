@@ -44,6 +44,19 @@ public class PaymentServiceImpl implements PaymentService {
             if (payment.getPaymentDate() != null) {
                 existing.setPaymentDate(payment.getPaymentDate());
             }
+            if (payment.getVoucher() != null) {
+                existing.setVoucher(payment.getVoucher());
+            }
+            if (payment.getAddress() != null) {
+                existing.setAddress(payment.getAddress());
+            }
+            if (payment.getPhone() != null) {
+                existing.setPhone(payment.getPhone());
+            }
+            if (payment.getName() != null) {
+                existing.setName(payment.getName());
+            }
+
             return paymentRepository.save(existing);
         }).orElse(null);
     }

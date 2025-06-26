@@ -20,16 +20,28 @@ public class Payment {
 
     private String status;
     private LocalDateTime paidAt;
+    private String address;
+    private String phone;
+    private String name;
+
+    @ManyToOne
+    @JoinColumn(name = "voucherid")
+    private Voucher voucher;
 
     // Constructors
     public Payment() {
     }
 
-    public Payment(Order order, String method, String status, LocalDateTime paidAt) {
+    public Payment(Order order, String method, String status, LocalDateTime paidAt, String address, String phone,
+            String name, Voucher voucher) {
         this.order = order;
         this.method = method;
         this.status = status;
         this.paidAt = paidAt;
+        this.address = address;
+        this.phone = phone;
+        this.name = name;
+        this.voucher = voucher;
     }
 
     // Getters and Setters
@@ -71,5 +83,37 @@ public class Payment {
 
     public void setPaymentDate(LocalDateTime paidAt) {
         this.paidAt = paidAt;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Voucher getVoucher() {
+        return voucher;
+    }
+
+    public void setVoucher(Voucher voucher) {
+        this.voucher = voucher;
     }
 }
