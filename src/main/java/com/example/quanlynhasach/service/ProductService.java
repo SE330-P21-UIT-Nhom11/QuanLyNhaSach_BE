@@ -19,4 +19,13 @@ public interface ProductService {
     public ProductDTO convertToDTO(Product product);
 
     void updateProductRating(int productId);
+
+    List<Product> getProductsByCategoryId(int categoryId);
+
+    List<Product> getProductsByRating();
+
+    List<Product> getProductsSortedByDiscount();
+
+    List<Product> searchProductsByName(String name);
+
 }
