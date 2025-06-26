@@ -166,4 +166,53 @@ public class ProductController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<List<ProductDTO>> getProductsByCategory(@PathVariable int categoryId) {
+        try {
+            List<Product> products = productService.getProductsByCategoryId(categoryId);
+            List<ProductDTO> productDTOs = products.stream().map(productService::convertToDTO).toList();
+            return ResponseEntity.ok(productDTOs);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/rating")
+    public ResponseEntity<List<ProductDTO>> getTopRatedProducts() {
+        try {
+            List<Product> products = productService.getProductsByRating();
+            List<ProductDTO> productDTOs = products.stream().map(productService::convertToDTO).toList();
+            return ResponseEntity.ok(productDTOs);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/discount")
+    public ResponseEntity<List<ProductDTO>> getProductsByDiscount() {
+        try {
+            List<Product> products = productService.getProductsSortedByDiscount();
+            List<ProductDTO> productDTOs = products.stream().map(productService::convertToDTO).toList();
+            return ResponseEntity.ok(productDTOs);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<ProductDTO>> searchProductsByName(@RequestParam String name) {
+        try {
+            List<Product> products = productService.searchProductsByName(name);
+            List<ProductDTO> productDTOs = products.stream().map(productService::convertToDTO).toList();
+            return ResponseEntity.ok(productDTOs);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
 }

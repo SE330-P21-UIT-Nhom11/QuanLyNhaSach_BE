@@ -140,4 +140,24 @@ public class ProductServiceImpl implements ProductService {
         });
     }
 
+    @Override
+    public List<Product> getProductsByCategoryId(int categoryId) {
+        return productRepository.findByCategoryId(categoryId);
+    }
+
+    @Override
+    public List<Product> getProductsByRating() {
+        return productRepository.findTopRatedProducts(); // cần thêm custom query
+    }
+
+    @Override
+    public List<Product> getProductsSortedByDiscount() {
+        return productRepository.findAllByOrderByDiscountDesc();
+    }
+
+    @Override
+    public List<Product> searchProductsByName(String name) {
+        return productRepository.findByTitleContainingIgnoreCase(name);
+    }
+
 }
