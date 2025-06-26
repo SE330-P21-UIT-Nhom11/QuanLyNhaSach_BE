@@ -99,6 +99,8 @@ public class OrderServiceImpl implements OrderService {
         order.setUser(user);
         order.setOrderDate(dto.getOrderDate() != null ? dto.getOrderDate() : LocalDateTime.now());
         order.setStatus(dto.getStatus());
+        order.setTotalAmount(BigDecimal.valueOf(0));
+        order = orderRepository.save(order);
 
         BigDecimal total = BigDecimal.ZERO;
         List<OrderDetail> orderDetails = new ArrayList<>();
@@ -118,10 +120,14 @@ public class OrderServiceImpl implements OrderService {
             orderDetails.add(detail);
         }
 
+        // Chỉ sau khi tính xong total và detail, mới set vào Order
         order.setTotalAmount(total);
         order.setOrderDetails(orderDetails);
 
-        orderRepository.save(order);
+        // Lưu order trước (vì OrderDetail cần khóa ngoại order_id)
+        order = orderRepository.save(order);
+
+        // Lưu chi tiết đơn hàng
         orderDetailRepository.saveAll(orderDetails);
 
         return order;

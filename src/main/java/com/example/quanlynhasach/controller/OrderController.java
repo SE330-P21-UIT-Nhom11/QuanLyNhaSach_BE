@@ -3,7 +3,6 @@ package com.example.quanlynhasach.controller;
 import com.example.quanlynhasach.dto.OrderDTO;
 import com.example.quanlynhasach.model.Order;
 import com.example.quanlynhasach.service.OrderService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +18,7 @@ public class OrderController {
     private OrderService orderService;
 
     @GetMapping
-    public ResponseEntity<List<OrderDTO>> getAllOrders() {
+    public ResponseEntity<?> getAllOrders() {
         try {
             List<Order> orders = orderService.getAllOrders();
             List<OrderDTO> dtos = orders.stream()
@@ -27,23 +26,23 @@ public class OrderController {
                     .collect(Collectors.toList());
             return ResponseEntity.ok(dtos);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body("Lỗi khi lấy danh sách đơn hàng: " + e.getMessage());
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderDTO> getOrderById(@PathVariable int id) {
+    public ResponseEntity<?> getOrderById(@PathVariable int id) {
         try {
             return orderService.getOrderById(id)
-                    .map(order -> ResponseEntity.ok(orderService.convertToDTO(order)))
-                    .orElse(ResponseEntity.notFound().build());
+                    .<ResponseEntity<?>>map(order -> ResponseEntity.ok(orderService.convertToDTO(order)))
+                    .orElse(ResponseEntity.status(404).body("Không tìm thấy đơn hàng với ID: " + id));
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body("Lỗi khi lấy đơn hàng: " + e.getMessage());
         }
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<OrderDTO>> getOrdersByUserId(@PathVariable int userId) {
+    public ResponseEntity<?> getOrdersByUserId(@PathVariable int userId) {
         try {
             List<Order> orders = orderService.getOrdersByUserId(userId);
             List<OrderDTO> dtos = orders.stream()
@@ -51,7 +50,7 @@ public class OrderController {
                     .collect(Collectors.toList());
             return ResponseEntity.ok(dtos);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body("Lỗi khi lấy đơn hàng theo người dùng: " + e.getMessage());
         }
     }
 
@@ -60,11 +59,11 @@ public class OrderController {
         try {
             Order createdOrder = orderService.createOrderFromDTO(dto);
             OrderDTO responseDTO = orderService.convertToDTO(createdOrder);
-            return ResponseEntity.ok(responseDTO);
+            return ResponseEntity.status(201).body(responseDTO);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body("Yêu cầu không hợp lệ: " + e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body("Lỗi khi tạo đơn hàng: " + e.getMessage());
         }
     }
 
@@ -73,12 +72,12 @@ public class OrderController {
         try {
             boolean deleted = orderService.deleteOrder(id);
             if (deleted) {
-                return ResponseEntity.ok("Đã xóa sản phẩm có ID = " + id);
+                return ResponseEntity.ok("Đã xóa đơn hàng có ID = " + id);
             } else {
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.status(404).body("Không tìm thấy đơn hàng để xóa với ID: " + id);
             }
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body("Lỗi khi xóa đơn hàng: " + e.getMessage());
         }
     }
 }

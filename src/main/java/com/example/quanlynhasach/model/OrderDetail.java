@@ -19,6 +19,7 @@ public class OrderDetail {
 
     @ManyToOne
     @MapsId("productId")
+    @JsonIgnore
     private Product product;
 
     @Column(nullable = false)
@@ -31,11 +32,11 @@ public class OrderDetail {
     }
 
     public OrderDetail(Order order, Product product, int quantity, BigDecimal price) {
-        this.id = new OrderDetailId(order.getId(), product.getId());
         this.order = order;
         this.product = product;
         this.quantity = quantity;
         this.price = price;
+        this.id = new OrderDetailId(order.getId(), product.getId());
     }
 
     public OrderDetailId getId() {
@@ -52,9 +53,6 @@ public class OrderDetail {
 
     public void setOrder(Order order) {
         this.order = order;
-        if (this.product != null) {
-            this.id = new OrderDetailId(order.getId(), this.product.getId());
-        }
     }
 
     public Product getProduct() {
@@ -63,9 +61,6 @@ public class OrderDetail {
 
     public void setProduct(Product product) {
         this.product = product;
-        if (this.order != null) {
-            this.id = new OrderDetailId(this.order.getId(), product.getId());
-        }
     }
 
     public int getQuantity() {
