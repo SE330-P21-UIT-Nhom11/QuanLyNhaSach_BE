@@ -22,7 +22,7 @@ public class Order {
     @Column(nullable = false)
     private LocalDateTime orderDate;
 
-    @Column(nullable = false)
+    @Column(name = "total_amount", nullable = true)
     private BigDecimal totalAmount;
 
     @Column(nullable = false)
