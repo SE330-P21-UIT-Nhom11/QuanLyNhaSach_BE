@@ -12,7 +12,7 @@ public class Promotion {
     private int id;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, unique = true)
+    @Column(name = "user_rank", nullable = false, unique = true)
     private Rank rank;
 
     @Column(nullable = false)
