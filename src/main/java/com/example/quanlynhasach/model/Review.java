@@ -1,5 +1,9 @@
 package com.example.quanlynhasach.model;
 
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -23,14 +27,20 @@ public class Review {
 
     private String comment;
 
+    @Column(name = "created_at", updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
     public Review() {
     }
 
-    public Review(User user, Product product, int rating, String comment) {
+    public Review(User user, Product product, int rating, String comment, LocalDateTime createdAt) {
         this.user = user;
         this.product = product;
         this.rating = rating;
         this.comment = comment;
+        this.createdAt = createdAt;
     }
 
     // Getters and Setters
@@ -73,4 +83,13 @@ public class Review {
     public void setComment(String comment) {
         this.comment = comment;
     }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
 }

@@ -2,6 +2,7 @@ package com.example.quanlynhasach.service;
 
 import com.example.quanlynhasach.dto.ProductDTO;
 import com.example.quanlynhasach.model.Product;
+
 import java.util.List;
 
 public interface ProductService {
@@ -16,4 +17,6 @@ public interface ProductService {
     boolean deleteProduct(int id);
 
     public ProductDTO convertToDTO(Product product);
+
+    void updateProductRating(int productId);
 }

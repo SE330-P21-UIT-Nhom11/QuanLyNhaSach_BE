@@ -5,7 +5,9 @@ import com.example.quanlynhasach.dto.CategoryDTO;
 import com.example.quanlynhasach.dto.ProductDTO;
 import com.example.quanlynhasach.dto.PublisherDTO;
 import com.example.quanlynhasach.model.Product;
+import com.example.quanlynhasach.model.Review;
 import com.example.quanlynhasach.repository.ProductRepository;
+import com.example.quanlynhasach.repository.ReviewRepository;
 import com.example.quanlynhasach.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private ReviewRepository reviewRepository;
 
     @Override
     public List<Product> getAllProducts() {
@@ -123,6 +128,16 @@ public class ProductServiceImpl implements ProductService {
         }
 
         return dto;
+    }
+
+    @Override
+    public void updateProductRating(int productId) {
+        List<Review> reviews = reviewRepository.findByProductId(productId);
+        double avg = reviews.stream().mapToInt(Review::getRating).average().orElse(0.0);
+        productRepository.findById(productId).ifPresent(product -> {
+            product.setRating(avg);
+            productRepository.save(product);
+        });
     }
 
 }
