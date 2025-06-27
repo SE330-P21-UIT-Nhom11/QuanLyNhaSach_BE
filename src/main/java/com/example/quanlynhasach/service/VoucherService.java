@@ -2,6 +2,7 @@ package com.example.quanlynhasach.service;
 
 import com.example.quanlynhasach.model.Voucher;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface VoucherService {
@@ -16,4 +17,6 @@ public interface VoucherService {
     Voucher updateVoucher(int id, Voucher updatedVoucher);
 
     boolean deleteVoucher(int id);
+
+    List<Voucher> getValidVoucher(int userPoint, BigDecimal totalAmount);
 }

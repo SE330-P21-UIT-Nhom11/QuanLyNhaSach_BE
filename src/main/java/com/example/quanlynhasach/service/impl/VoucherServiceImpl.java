@@ -6,6 +6,9 @@ import com.example.quanlynhasach.service.VoucherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -58,6 +61,10 @@ public class VoucherServiceImpl implements VoucherService {
             if (updatedVoucher.getExpiryDate() != null)
                 v.setExpiryDate(updatedVoucher.getExpiryDate());
 
+            if (updatedVoucher.getPoint() != null) {
+                v.setPoint(updatedVoucher.getPoint());
+            }
+
             return voucherRepository.save(v);
         }).orElse(null);
     }
@@ -70,4 +77,25 @@ public class VoucherServiceImpl implements VoucherService {
         }
         return false;
     }
+
+    @Override
+    public List<Voucher> getValidVoucher(int userPoint, BigDecimal totalAmount) {
+        LocalDateTime now = LocalDateTime.now();
+        List<Voucher> vouchers = voucherRepository.findAll();
+        List<Voucher> result = new ArrayList<>();
+
+        for (Voucher voucher : vouchers) {
+            boolean valid = voucher.getRemaining() > 0 &&
+                    now.isBefore(voucher.getExpiryDate()) &&
+                    totalAmount.compareTo(voucher.getMinPurchase()) >= 0 &&
+                    userPoint >= voucher.getPoint();
+
+            if (valid) {
+                result.add(voucher);
+            }
+        }
+
+        return result;
+    }
+
 }

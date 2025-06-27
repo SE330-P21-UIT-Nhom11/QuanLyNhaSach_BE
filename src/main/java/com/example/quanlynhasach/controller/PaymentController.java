@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -73,6 +74,32 @@ public class PaymentController {
                 }
             }
 
+            BigDecimal totalAmount = order.getTotalAmount();
+            BigDecimal discount = BigDecimal.ZERO;
+            if (voucher != null) {
+                String type = voucher.getDiscountType();
+                BigDecimal discountValue = voucher.getValue();
+
+                if ("fixed".equalsIgnoreCase(type)) {
+                    discount = discountValue;
+                }
+
+                if ("percent".equalsIgnoreCase(type)) {
+                    BigDecimal percent = discountValue.divide(BigDecimal.valueOf(100));
+                    discount = totalAmount.multiply(percent);
+                }
+                BigDecimal max = BigDecimal.valueOf(voucher.getMaxUsage());
+                if (discount.compareTo(max) > 0) {
+                    discount = max;
+                }
+
+                totalAmount = totalAmount.subtract(discount);
+
+                if (totalAmount.compareTo(BigDecimal.ZERO) < 0) {
+                    totalAmount = BigDecimal.ZERO;
+                }
+            }
+
             LocalDateTime paidAt = LocalDateTime.parse(dto.paidAt);
 
             Payment payment = new Payment();
@@ -83,6 +110,7 @@ public class PaymentController {
             payment.setAddress(dto.address);
             payment.setPhone(dto.phone);
             payment.setName(dto.name);
+            payment.setTotalAmount(totalAmount);
             payment.setVoucher(voucher);
 
             Payment saved = paymentService.createPayment(payment);

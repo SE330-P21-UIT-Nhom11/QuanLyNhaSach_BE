@@ -1,5 +1,7 @@
 package com.example.quanlynhasach.dto;
 
+import java.math.BigDecimal;
+
 import com.example.quanlynhasach.model.Payment;
 
 public class PaymentDTO {
@@ -12,6 +14,7 @@ public class PaymentDTO {
     public String phone;
     public String name;
     public String vouchercode;
+    public BigDecimal totalamount;
 
     public PaymentDTO() {
     }
@@ -26,5 +29,6 @@ public class PaymentDTO {
         this.phone = payment.getPhone();
         this.name = payment.getName();
         this.vouchercode = payment.getVoucher() != null ? payment.getVoucher().getCode() : null;
+        this.totalamount = payment.getTotalAmount() != null ? payment.getTotalAmount() : null;
     }
 }

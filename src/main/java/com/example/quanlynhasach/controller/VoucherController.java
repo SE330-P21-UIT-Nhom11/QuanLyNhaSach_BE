@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -65,5 +66,18 @@ public class VoucherController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    // Lấy voucher hợp lệ
+    @GetMapping("/valid")
+    public ResponseEntity<?> getValidVouchers(
+            @RequestParam int userPoint,
+            @RequestParam BigDecimal totalAmount) {
+        try {
+            List<Voucher> validVouchers = voucherService.getValidVoucher(userPoint, totalAmount);
+            return ResponseEntity.ok(validVouchers);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Lỗi khi lấy danh sách voucher hợp lệ: " + e.getMessage());
+        }
     }
 }
