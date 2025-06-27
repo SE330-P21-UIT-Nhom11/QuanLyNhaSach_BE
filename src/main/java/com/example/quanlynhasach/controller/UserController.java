@@ -39,6 +39,17 @@ public class UserController {
         }
     }
 
+    @GetMapping("/email")
+    public ResponseEntity<User> getUserByEmail(@RequestParam String email) {
+        try {
+            Optional<User> user = userService.getUserByEmail(email);
+            return user.map(ResponseEntity::ok)
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
     // Tạo user mới
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody User user) {
