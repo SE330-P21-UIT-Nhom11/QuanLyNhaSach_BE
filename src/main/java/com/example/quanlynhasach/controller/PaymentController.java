@@ -32,7 +32,10 @@ public class PaymentController {
     public ResponseEntity<?> getAllPayments() {
         try {
             List<Payment> payments = paymentService.getAllPayments();
-            return ResponseEntity.ok(payments);
+            List<PaymentDTO> response = payments.stream()
+                    .map(PaymentDTO::new)
+                    .toList();
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Lỗi khi lấy danh sách thanh toán: " + e.getMessage());
         }
@@ -44,7 +47,7 @@ public class PaymentController {
         try {
             Payment payment = paymentService.getPaymentById(id);
             if (payment != null) {
-                return ResponseEntity.ok(payment);
+                return ResponseEntity.ok(new PaymentDTO(payment));
             } else {
                 return ResponseEntity.status(404).body("Không tìm thấy thanh toán với ID: " + id);
             }
@@ -57,13 +60,11 @@ public class PaymentController {
     @PostMapping
     public ResponseEntity<?> createPayment(@RequestBody PaymentDTO dto) {
         try {
-            // Tìm order
             Order order = orderRepository.findById(dto.orderid).orElse(null);
             if (order == null) {
                 return ResponseEntity.status(400).body("Không tìm thấy đơn hàng.");
             }
 
-            // Tìm voucher (nếu có)
             Voucher voucher = null;
             if (dto.vouchercode != null) {
                 voucher = voucherRepository.findByCode(dto.vouchercode);
@@ -72,10 +73,8 @@ public class PaymentController {
                 }
             }
 
-            // Parse ngày
             LocalDateTime paidAt = LocalDateTime.parse(dto.paidAt);
 
-            // Tạo Payment
             Payment payment = new Payment();
             payment.setOrder(order);
             payment.setPaymentMethod(dto.method);
@@ -86,7 +85,8 @@ public class PaymentController {
             payment.setName(dto.name);
             payment.setVoucher(voucher);
 
-            return ResponseEntity.status(201).body(paymentService.createPayment(payment));
+            Payment saved = paymentService.createPayment(payment);
+            return ResponseEntity.status(201).body(new PaymentDTO(saved));
 
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Lỗi khi tạo thanh toán: " + e.getMessage());
@@ -125,8 +125,8 @@ public class PaymentController {
             if (dto.name != null)
                 existing.setName(dto.name);
 
-            return ResponseEntity.ok(paymentService.createPayment(existing)); // dùng createPayment để save lại
-
+            Payment saved = paymentService.createPayment(existing);
+            return ResponseEntity.ok(new PaymentDTO(saved));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Lỗi khi cập nhật thanh toán: " + e.getMessage());
         }
