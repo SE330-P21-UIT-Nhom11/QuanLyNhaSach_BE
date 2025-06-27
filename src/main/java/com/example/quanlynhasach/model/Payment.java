@@ -1,6 +1,8 @@
 package com.example.quanlynhasach.model;
 
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -23,6 +25,7 @@ public class Payment {
     private String address;
     private String phone;
     private String name;
+    private BigDecimal totalAmount;
 
     @ManyToOne
     @JoinColumn(name = "voucherid")
@@ -33,7 +36,7 @@ public class Payment {
     }
 
     public Payment(Order order, String method, String status, LocalDateTime paidAt, String address, String phone,
-            String name, Voucher voucher) {
+            String name, BigDecimal totalAmount, Voucher voucher) {
         this.order = order;
         this.method = method;
         this.status = status;
@@ -42,6 +45,7 @@ public class Payment {
         this.phone = phone;
         this.name = name;
         this.voucher = voucher;
+        this.totalAmount = totalAmount;
     }
 
     // Getters and Setters
@@ -107,6 +111,14 @@ public class Payment {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setTotalAmount(BigDecimal totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
     }
 
     public Voucher getVoucher() {

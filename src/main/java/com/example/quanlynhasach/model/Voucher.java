@@ -27,6 +27,9 @@ public class Voucher {
     @Column(nullable = false)
     private int remaining;
 
+    @Column(name = "point")
+    private Integer point = 0;
+
     @Column(name = "min_purchase", nullable = false)
     private BigDecimal minPurchase;
 
@@ -36,7 +39,7 @@ public class Voucher {
     public Voucher() {
     }
 
-    public Voucher(String code, String discountType, BigDecimal value, int maxUsage, int remaining,
+    public Voucher(String code, String discountType, BigDecimal value, int maxUsage, int point, int remaining,
             BigDecimal minPurchase, LocalDateTime expiryDate) {
         this.code = code;
         this.discountType = discountType;
@@ -45,6 +48,7 @@ public class Voucher {
         this.remaining = remaining;
         this.minPurchase = minPurchase;
         this.expiryDate = expiryDate;
+        this.point = point;
     }
 
     public int getId() {
@@ -109,5 +113,13 @@ public class Voucher {
 
     public void setExpiryDate(LocalDateTime expiryDate) {
         this.expiryDate = expiryDate;
+    }
+
+    public Integer getPoint() {
+        return point;
+    }
+
+    public void setPoint(Integer point) {
+        this.point = point;
     }
 }

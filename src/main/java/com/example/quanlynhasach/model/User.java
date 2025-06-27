@@ -22,7 +22,9 @@ public class User {
     @JsonIgnore
     private Cart cart;
 
+    @Column(nullable = false, unique = true)
     private String name;
+
     private String email;
     private String password;
     private String phone;
