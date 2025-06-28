@@ -102,14 +102,16 @@ public class AuthorizationMiddleware implements Filter {
         String method = httpRequest.getMethod();
         String path = httpRequest.getRequestURI();
         
-        // Bỏ qua các endpoint public
+        // Bỏ qua hoàn toàn các endpoint public - không cần kiểm tra token gì cả
         if (isPublicEndpoint(method, path)) {
             System.out.println("✓ Public endpoint accessed: " + method + " " + path);
             chain.doFilter(request, response);
             return;
         }
         
-        System.out.println("✗ Protected endpoint accessed: " + method + " " + path);        // Lấy access token từ Bearer header
+        System.out.println("✗ Protected endpoint accessed: " + method + " " + path);
+        
+        // Lấy access token từ Bearer header
         String authHeader = httpRequest.getHeader("Authorization");
         String accessToken = null;
         boolean tokenRefreshed = false;
@@ -159,11 +161,6 @@ public class AuthorizationMiddleware implements Filter {
                     return;
                 }
             } else {
-                // Nếu đây là endpoint public, cho phép truy cập
-                if (isPublicEndpoint(method, path)) {
-                    chain.doFilter(request, response);
-                    return;
-                }
                 sendErrorResponse(httpResponse, 401, "Missing or invalid authorization token");
                 return;
             }
@@ -192,12 +189,6 @@ public class AuthorizationMiddleware implements Filter {
             System.out.println("Error processing token: " + e.getMessage());
             e.printStackTrace();
             
-            // Nếu đây là endpoint public, vẫn cho phép truy cập
-            if (isPublicEndpoint(method, path)) {
-                chain.doFilter(request, response);
-                return;
-            }
-            
             sendErrorResponse(httpResponse, 401, "Invalid token");
             return;
         }
@@ -214,7 +205,7 @@ public class AuthorizationMiddleware implements Filter {
         // Các endpoint không cần xác thực
         return path.startsWith("/api/auth/") ||
                // Products - GET methods
-               (path.equals("/api/products") || path.matches("/api/products/\\d+") || path.equals("/api/products/search")) && method.equals("GET") ||
+               (path.equals("/api/products") || path.matches("/api/products/\\d+") || path.equals("/api/products/search") || path.equals("/api/products/rating") || path.equals("/api/products/discount") || path.matches("/api/products/category/\\d+")) && method.equals("GET") ||
                // Categories - GET methods
                (path.equals("/api/categories") || path.matches("/api/categories/\\d+")) && method.equals("GET") ||
                // Authors - GET methods
