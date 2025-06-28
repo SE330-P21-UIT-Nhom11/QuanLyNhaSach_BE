@@ -205,7 +205,7 @@ public class AuthorizationMiddleware implements Filter {
         // Các endpoint không cần xác thực
         return path.startsWith("/api/auth/") ||
                // Products - GET methods
-               (path.equals("/api/products") || path.matches("/api/products/\\d+") || path.equals("/api/products/search") || path.equals("/api/products/rating") || path.equals("/api/products/discount")) && method.equals("GET") ||
+               (path.equals("/api/products") || path.matches("/api/products/\\d+") || path.equals("/api/products/search") || path.equals("/api/products/rating") || path.equals("/api/products/discount") || path.matches("/api/products/category/\\d+")) && method.equals("GET") ||
                // Categories - GET methods
                (path.equals("/api/categories") || path.matches("/api/categories/\\d+")) && method.equals("GET") ||
                // Authors - GET methods
