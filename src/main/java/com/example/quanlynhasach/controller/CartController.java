@@ -1,7 +1,9 @@
 package com.example.quanlynhasach.controller;
 
 import com.example.quanlynhasach.model.Cart;
+import com.example.quanlynhasach.model.User;
 import com.example.quanlynhasach.model.CartItem;
+import com.example.quanlynhasach.repository.UserRepository;
 import com.example.quanlynhasach.dto.*;
 import com.example.quanlynhasach.service.CartService;
 import org.springframework.http.ResponseEntity;
@@ -14,19 +16,46 @@ import java.util.List;
 public class CartController {
 
     private final CartService cartService;
+    private final UserRepository userRepository;
 
-    public CartController(CartService cartService) {
+    public CartController(CartService cartService, UserRepository userRepository) {
         this.cartService = cartService;
+        this.userRepository = userRepository;
     }
 
-    // Lấy giỏ hàng của user
-    @GetMapping("/{userId}")
+    // Tạo giỏ hàng mới cho user
+    @PostMapping("/create/{userId}")
+    public ResponseEntity<?> createCart(@PathVariable int userId) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            return ResponseEntity.badRequest().body("{ \"error\": { \"message\": \"Người dùng không tồn tại\" } }");
+        }
+
+        Cart cart = cartService.createCart(user);
+        CartDTO dto = cartService.convertToDTO(cart);
+        return ResponseEntity.ok(dto);
+    }
+
+    // Lấy giỏ hàng theo User ID (đường dẫn rõ ràng)
+    @GetMapping("/user/{userId}")
     public ResponseEntity<CartDTO> getCartByUser(@PathVariable int userId) {
         Cart cart = cartService.getCartByUserId(userId);
         if (cart != null) {
             return ResponseEntity.ok(cartService.convertToDTO(cart));
         }
         return ResponseEntity.notFound().build();
+    }
+
+    // Lấy giỏ hàng theo Cart ID
+    @GetMapping("/id/{cartId}")
+    public ResponseEntity<?> getCartById(@PathVariable int cartId) {
+        Cart cart = cartService.getCartById(cartId);
+        if (cart == null) {
+            return ResponseEntity.status(404).body("{ \"error\": { \"message\": \"Không tìm thấy giỏ hàng!\" } }");
+        }
+
+        CartDTO dto = cartService.convertToDTO(cart);
+        return ResponseEntity.ok(dto);
     }
 
     // Thêm sản phẩm vào giỏ hàng
@@ -75,7 +104,7 @@ public class CartController {
     }
 
     // Xóa giỏ hàng
-    @DeleteMapping("/{cartId}")
+    @DeleteMapping("/id/{cartId}")
     public ResponseEntity<String> deleteCart(@PathVariable int cartId) {
         boolean deleted = cartService.deleteCart(cartId);
         if (deleted) {

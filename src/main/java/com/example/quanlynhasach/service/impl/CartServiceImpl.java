@@ -36,8 +36,8 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Cart createCart(User user) {
-        Cart cart = new Cart(user, LocalDateTime.now());
-        return cartRepository.save(cart);
+        return cartRepository.findByUserId(user.getId())
+                .orElseGet(() -> cartRepository.save(new Cart(user, LocalDateTime.now())));
     }
 
     @Override
