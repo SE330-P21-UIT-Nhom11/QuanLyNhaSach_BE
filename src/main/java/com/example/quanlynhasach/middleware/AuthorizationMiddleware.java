@@ -213,11 +213,20 @@ public class AuthorizationMiddleware implements Filter {
     }    private boolean isPublicEndpoint(String method, String path) {
         // Các endpoint không cần xác thực
         return path.startsWith("/api/auth/") ||
+               // Products - GET methods
                (path.equals("/api/products") || path.matches("/api/products/\\d+") || path.equals("/api/products/search")) && method.equals("GET") ||
-               path.equals("/api/categories") && method.equals("GET") ||
-               path.equals("/api/authors") && method.equals("GET") ||
-               path.equals("/api/publishers") && method.equals("GET") ||
-               path.startsWith("/api/reviews") && method.equals("GET") ||
+               // Categories - GET methods
+               (path.equals("/api/categories") || path.matches("/api/categories/\\d+")) && method.equals("GET") ||
+               // Authors - GET methods
+               (path.equals("/api/authors") || path.matches("/api/authors/\\d+")) && method.equals("GET") ||
+               // Publishers - GET methods
+               (path.equals("/api/publishers") || path.matches("/api/publishers/\\d+")) && method.equals("GET") ||
+               // Compose - GET methods
+               (path.equals("/api/compose") || path.matches("/api/compose/\\d+")) && method.equals("GET") ||
+               // Promotions - GET methods
+               (path.equals("/api/promotions") || path.matches("/api/promotions/\\d+")) && method.equals("GET") ||
+               // Reviews - GET methods và POST create
+               path.startsWith("/api/reviews") && (method.equals("GET") || method.equals("POST")) ||
                // Cart creation - chỉ cho phép tạo cart mà không cần đăng nhập
                path.startsWith("/api/carts/create/") && method.equals("POST") ||
                // Temporarily allow admin endpoints for testing
