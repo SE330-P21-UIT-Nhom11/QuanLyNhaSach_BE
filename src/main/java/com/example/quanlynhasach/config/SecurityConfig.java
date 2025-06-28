@@ -4,6 +4,7 @@ import com.example.quanlynhasach.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -37,11 +38,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/products").permitAll()
-                        .requestMatchers("/api/categories").permitAll()
-                        .requestMatchers("/api/authors").permitAll()
-                        .requestMatchers("/api/publishers").permitAll()
-                        .requestMatchers("/api/reviews").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/authors").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/publishers").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
+                        // Cart creation endpoint - chỉ cho phép tạo cart không cần đăng nhập
+                        .requestMatchers(HttpMethod.POST, "/api/carts/create/**").permitAll()
                         // Swagger/OpenAPI endpoints - comprehensive list
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/swagger-ui.html").permitAll()

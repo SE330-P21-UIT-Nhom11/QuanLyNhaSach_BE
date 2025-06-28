@@ -213,11 +213,13 @@ public class AuthorizationMiddleware implements Filter {
     }    private boolean isPublicEndpoint(String method, String path) {
         // Các endpoint không cần xác thực
         return path.startsWith("/api/auth/") ||
-               path.equals("/api/products") && method.equals("GET") ||
+               (path.equals("/api/products") || path.matches("/api/products/\\d+")) && method.equals("GET") ||
                path.equals("/api/categories") && method.equals("GET") ||
                path.equals("/api/authors") && method.equals("GET") ||
                path.equals("/api/publishers") && method.equals("GET") ||
                path.startsWith("/api/reviews") && method.equals("GET") ||
+               // Cart creation - chỉ cho phép tạo cart mà không cần đăng nhập
+               path.startsWith("/api/carts/create/") && method.equals("POST") ||
                // Temporarily allow admin endpoints for testing
                path.startsWith("/api/admin/") ||
                // API Documentation endpoints - comprehensive match
