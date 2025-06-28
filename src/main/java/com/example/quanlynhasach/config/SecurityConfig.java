@@ -42,9 +42,17 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/products/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/search").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categories/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/authors").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/authors/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/publishers").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/publishers/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/compose").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/compose/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/promotions").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/promotions/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/reviews").permitAll()
                         // Cart creation endpoint - chỉ cho phép tạo cart không cần đăng nhập
                         .requestMatchers(HttpMethod.POST, "/api/carts/create/**").permitAll()
                         // Swagger/OpenAPI endpoints - comprehensive list
