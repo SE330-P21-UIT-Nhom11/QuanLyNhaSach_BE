@@ -213,7 +213,7 @@ public class AuthorizationMiddleware implements Filter {
     }    private boolean isPublicEndpoint(String method, String path) {
         // Các endpoint không cần xác thực
         return path.startsWith("/api/auth/") ||
-               (path.equals("/api/products") || path.matches("/api/products/\\d+")) && method.equals("GET") ||
+               (path.equals("/api/products") || path.matches("/api/products/\\d+") || path.equals("/api/products/search")) && method.equals("GET") ||
                path.equals("/api/categories") && method.equals("GET") ||
                path.equals("/api/authors") && method.equals("GET") ||
                path.equals("/api/publishers") && method.equals("GET") ||
