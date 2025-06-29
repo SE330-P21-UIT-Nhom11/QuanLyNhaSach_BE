@@ -29,7 +29,7 @@ public class User {
     private String password;
     private String phone;
     private String address;
-    private double point = 0.0;
+    private Double point = 0.0;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
@@ -73,11 +73,11 @@ public class User {
         this.cart = cart;
     }
 
-    public double getPoint() {
+    public Double getPoint() {
         return point;
     }
 
-    public void setPoint(double point) {
+    public void setPoint(Double point) {
         this.point = point;
     }
 }
