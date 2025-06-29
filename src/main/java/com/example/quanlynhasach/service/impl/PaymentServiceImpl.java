@@ -25,6 +25,11 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    public Payment getPaymentByOrderId(int orderId) {
+        return paymentRepository.findByOrderId(orderId);
+    }
+
+    @Override
     public Payment createPayment(Payment payment) {
         return paymentRepository.save(payment);
     }
