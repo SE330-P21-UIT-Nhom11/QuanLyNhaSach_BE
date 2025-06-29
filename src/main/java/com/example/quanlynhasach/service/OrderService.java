@@ -17,6 +17,8 @@ public interface OrderService {
 
     boolean deleteOrder(int id);
 
+    Order updateOrderStatus(int orderId, String newStatus);
+
     OrderDTO convertToDTO(Order order);
 
     Order createOrderFromDTO(OrderDTO dto);

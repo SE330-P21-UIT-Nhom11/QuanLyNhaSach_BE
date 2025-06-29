@@ -62,6 +62,15 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public Order updateOrderStatus(int orderId, String newStatus) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với ID: " + orderId));
+        order.setStatus(newStatus);
+        orderRepository.save(order);
+        return order;
+    }
+
+    @Override
     public boolean deleteOrder(int id) {
         if (orderRepository.existsById(id)) {
             orderRepository.deleteById(id);
