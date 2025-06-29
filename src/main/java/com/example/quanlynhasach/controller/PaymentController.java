@@ -57,6 +57,22 @@ public class PaymentController {
         }
     }
 
+    @GetMapping("/order/{orderId}")
+    public ResponseEntity<?> getPaymentByOrderId(@PathVariable int orderId) {
+        try {
+            Payment payment = paymentService.getPaymentByOrderId(orderId);
+            if (payment != null) {
+                return ResponseEntity.ok(new PaymentDTO(payment));
+            } else {
+                return ResponseEntity.status(404)
+                        .body("Không tìm thấy thanh toán với Order ID: " + orderId);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body("Lỗi khi lấy thanh toán theo Order ID: " + e.getMessage());
+        }
+    }
+
     // POST: Create new payment
     @PostMapping
     public ResponseEntity<?> createPayment(@RequestBody PaymentDTO dto) {

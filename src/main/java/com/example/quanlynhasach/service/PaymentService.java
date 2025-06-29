@@ -9,6 +9,8 @@ public interface PaymentService {
 
     Payment getPaymentById(int id);
 
+    Payment getPaymentByOrderId(int id);
+
     Payment createPayment(Payment payment);
 
     Payment updatePayment(int id, Payment payment);
