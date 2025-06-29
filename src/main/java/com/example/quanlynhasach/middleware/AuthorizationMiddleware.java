@@ -204,6 +204,8 @@ public class AuthorizationMiddleware implements Filter {
     }    private boolean isPublicEndpoint(String method, String path) {
         // Các endpoint không cần xác thực
         return path.startsWith("/api/auth/") ||
+               // User registration - cho phép người dùng tự tạo tài khoản
+               (path.equals("/api/users/register") && method.equals("POST")) ||
                // Products - GET methods
                (path.equals("/api/products") || path.matches("/api/products/\\d+") || path.equals("/api/products/search") || path.equals("/api/products/rating") || path.equals("/api/products/discount") || path.matches("/api/products/category/\\d+")) && method.equals("GET") ||
                // Categories - GET methods
