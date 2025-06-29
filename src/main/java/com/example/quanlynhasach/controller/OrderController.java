@@ -67,6 +67,24 @@ public class OrderController {
         }
     }
 
+    @PatchMapping("/{orderId}/status")
+    public ResponseEntity<?> updateOrderStatus(
+            @PathVariable int orderId,
+            @RequestParam String status) {
+        try {
+            Order order = orderService.updateOrderStatus(orderId, status);
+            if (order != null) {
+                return ResponseEntity.ok("Cập nhật trạng thái đơn hàng thành công.");
+            } else {
+                return ResponseEntity.status(404)
+                        .body("Không tìm thấy đơn hàng với ID: " + orderId);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body("Lỗi khi cập nhật trạng thái đơn hàng: " + e.getMessage());
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteOrder(@PathVariable int id) {
         try {
