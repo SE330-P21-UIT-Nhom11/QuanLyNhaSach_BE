@@ -5,9 +5,11 @@ import com.example.quanlynhasach.dto.OrderItemDTO;
 import com.example.quanlynhasach.model.Order;
 import com.example.quanlynhasach.model.OrderDetail;
 import com.example.quanlynhasach.model.Product;
+import com.example.quanlynhasach.model.Payment;
 import com.example.quanlynhasach.model.User;
 import com.example.quanlynhasach.repository.OrderDetailRepository;
 import com.example.quanlynhasach.repository.OrderRepository;
+import com.example.quanlynhasach.repository.PaymentRepository;
 import com.example.quanlynhasach.repository.ProductRepository;
 import com.example.quanlynhasach.repository.UserRepository;
 import com.example.quanlynhasach.service.OrderService;
@@ -31,6 +33,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private PaymentRepository paymentRepository;
 
     @Autowired
     private OrderDetailRepository orderDetailRepository;
@@ -73,6 +78,8 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public boolean deleteOrder(int id) {
         if (orderRepository.existsById(id)) {
+            Payment payment = paymentRepository.findByOrderId(id);
+            paymentRepository.deleteById(payment.getId());
             orderRepository.deleteById(id);
             return true;
         }

@@ -61,7 +61,7 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO dto) {
         try {
-            if (dto.getCategoryId() <= 0 || dto.getPublisherId() <= 0) {
+            if (dto.getCategoryId() == null || dto.getPublisherId() == null) {
                 return ResponseEntity.badRequest().body(null);
             }
             Category category = categoryService.getCategoryById(dto.getCategoryId());
